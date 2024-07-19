@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Memory Game</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" type="module" defer></script>
+  </head>
+  <body>
+    <div class="main-menu">
+      <h1>Memory game</h1>
+      <div class="card ">
+        <div class="customize-options">
+          <h3>Select Theme</h3>
+          <div class="options theme-options">
+            <span selected>Numbers</span>
+            <span>Icons</span>
+          </div>
+          <h3>Number of Players</h3>
+          <div class="options player-options">
+            <span selected>1</span>
+            <span>2</span>
+            <span>3</span>
+            <span>4</span>
+          </div>
+          <h3>Grid Size</h3>
+          <div class="options grid-options">
+            <span selected data-total="16">4x4</span>
+            <span data-total="36">6x6</span>
+          </div>
+          <button id="start-btn">Start Game</button>
+        </div>
+      </div>
+    </div>
+    <div class="game hidden">
+      <header>
+        <h1>Memory game</h1>
+        <div class="menu-bar">
+          <button id="toggle-menu-bar" class="hidden">Menu</button>
+        </div>
+      </header>
+      <div class="game-board" data-tiles="16">
+      </div>
+      <div class="game-info">
+        <span class="time-elapsed-tab hidden ">
+          <p>Time</p>
+          <span id="time-elapsed"></span>
+        </span>
+        <span class="moves-counter-tab hidden">
+          <p>Moves</p>
+          <span id="moves-count">0</span>
+        </span>
+        <span class="player hidden">
+          <p>Player 1</p>
+          <span class="moves-count">0</span>
+        </span>
+        <span class="player hidden">
+          <p>Player 2</p>
+          <span class="moves-count">0</span>
+        </span>
+        <span class="player hidden">
+          <p>Player 3</p>
+          <span class="moves-count" >0</span>
+        </span>
+        <span class="player hidden">
+          <p>Player 4</p>
+          <span class="moves-count">0</span>
+        </span>
+      </div>
+      <dialog id="result-dialog">
+        <div class="player-won"></div>
+        <h2>You did it!</h2>
+        <p>Game over! Here's what you got on</p>
+        <div class="score hidden">
+          <p>Time Elapsed</p>
+          <span id="time-taken">00:00</span>
+        </div>
+        <div class="score hidden">
+          <p>Moves taken</p>
+          <span id="moves-taken">0</span>
+        </div>
+        <div class="players-stats">
+          <!-- filled by JS -->
+          <span>
+
+          </span>
+        </div>
+        <div class="btns">
+          
+        </div>
+      </dialog>
+    </div>
+  </body>
+</html>
