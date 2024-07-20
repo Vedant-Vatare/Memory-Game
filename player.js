@@ -8,9 +8,10 @@ export default class playerDetails {
     return this.movesCount;
   };
   incremetCounter() {
-    ++this.movesCount;
+    this.movesCount++;
   };
   incremetPairsFound() {
-    ++this.pairsFound;
+    this.pairsFound++;
   };
 }
+// in the diff-way branch change.
