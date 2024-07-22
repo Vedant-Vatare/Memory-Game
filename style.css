@@ -111,7 +111,6 @@ body {
   flex-direction: column;
   align-items: center;
   background-color: #fcfcfc;
-  /* overflow: hidden; */
 }
 dialog {
   padding: 3rem;
@@ -136,7 +135,6 @@ dialog {
   display:flex;
   justify-content: space-between;
   width: min(90vw, 650px);
-  /* height: max(60vh, 475px); */
   border-radius: 15px;
   outline: 1px solid black;
 }
@@ -202,7 +200,6 @@ dialog button {
   padding: 0.5em 1em;
 }
 .game header #toggle-menu-bar {
-  /* display:none; */
   background-color: var(--main-btns-bg-color);
   border: none;
 }
@@ -239,7 +236,6 @@ dialog button {
   margin-top: 3rem;
   height: min(70vw, 600px);
   width:  min(70vw, 600px);
-  /* background-color: #e7e5e5; */
 }
 .game-board div {
   position: relative;
@@ -320,7 +316,6 @@ dialog button {
 }
 .player.active-player {
   margin: 0;
-  /* padding: 0; */
   position: relative;
   background-color: var(--main-btns-bg-color);
 }
@@ -345,7 +340,6 @@ dialog button {
   top: 120%;
   left: 50%;
   transform: translate(-50%, -50%);
-  /* background-color: #f2f2f2; */
   letter-spacing: 0.25rem;
   font-size: var(--text-font-size);
   text-align: center;

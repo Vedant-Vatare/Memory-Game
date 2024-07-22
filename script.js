@@ -169,7 +169,7 @@ function createPlayer(index) {
   SpanElement.classList.add("moves-count");
   SpanElement.textContent = 0;
   let text = `P${index + 1}`;
-  if (window.innerWidth > 760) text = `Player${index + 1}`;
+  if (window.innerWidth > 760) text = `Player ${index + 1}`;
   const paraElement = document.createElement("p");
   paraElement.textContent = text;
   const playerObject = new playersObject(playerElement, index + 1);
@@ -191,7 +191,6 @@ function updateTurns(currentPlayer) {
   } else {
     playingPlayers[nextPlayerIndex].element.classList.add("active-player");
   }
-  console.log("next players turn !");
 }
 
 function manageTimer(playState, startTime) {
@@ -313,7 +312,6 @@ function checkTiles(tile) {
   }
   if (selectedTiles.length !== 2) return;
   // check the two tiles now:
-  console.log("checking the tiles...");
   const currentPlayer = document.querySelector(".active-player");
   setTimeout(() => {
     if (!(selectedTiles[0].innerHTML === selectedTiles[1].innerHTML)) {
@@ -390,8 +388,6 @@ function populateWinnerModal(modal) {
     wrapperElement.append(span, para);
     playerStats.appendChild(wrapperElement);
   });
-
-  console.log(playingPlayers);
 }
 
 function resetGame() {
@@ -401,7 +397,7 @@ function resetGame() {
 
   // resetting the moves and pairs count of players
   if (isMultiplayerMode) {
-    playerStats = null;
+    playerStats.innerHTML = null;
     playingPlayers.forEach((player) => {
       player.element.querySelector(".moves-count").textContent = 0;
       player.movesCount = 0;
