@@ -14,4 +14,3 @@ export default class playerDetails {
     this.pairsFound++;
   };
 }
-// in the diff-way branch change.
