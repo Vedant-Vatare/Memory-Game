@@ -7,6 +7,7 @@ const toggleMenuBtn = document.querySelector("#toggle-menu-bar");
 const gameBoard = document.querySelector(".game-board");
 const timer = document.querySelector("#time-elapsed");
 const movesCounter = document.querySelector("#moves-count");
+const playerStats = document.querySelector(".players-stats");
 let isMultiplayerMode,
   chosenGridSize,
   chosenTheme,
@@ -48,7 +49,6 @@ function selectOptions(elem) {
 const startGameFn = () => {
   mainMenu.classList.add("hidden");
   game.classList.remove("hidden");
-  // manageTimer(true, Date.now());
   setupGameLayout();
 };
 function setupGameLayout() {
@@ -168,14 +168,13 @@ function createPlayer(index) {
   if (window.innerWidth > 760) text = `Player${index + 1}`;
   const paraElement = document.createElement("p");
   paraElement.textContent = text;
-  const playerObject = new playersObject(playerElement);
+  const playerObject = new playersObject(playerElement, index + 1);
   playingPlayers.push(playerObject);
   playerElement.append(paraElement, SpanElement);
   return playerElement;
 }
 
 function updateTurns(currentPlayer) {
-  console.log(currentPlayer);
   currentPlayer.classList.remove("active-player");
   let nextPlayerIndex;
   playingPlayers.forEach((obj, index) => {
@@ -226,7 +225,6 @@ const newGameFn = () => {
   game.classList.add("hidden");
   mainMenu.classList.remove("hidden");
   manageTimer(false);
-  // const newGameButton = document.querySelector(".new-game-btn");
   //find an open model and close it
   if (document.querySelector("dialog[open]") !== null) closeModalFn();
   resetGame();
@@ -344,13 +342,11 @@ function checkForWin() {
   }
 }
 function annouceResult() {
-  // const resultsDialog = document.querySelector(".result-dialog .btns");
-  // appendButton(resultsDialog, "restart-btn", "Restart", restartGameFn);
-  // appendButton(resultsDialog, "new-game-btn", "Setup New Game", newGameFn);
   clearInterval(timeIntv);
   let modal;
   if (isMultiplayerMode) {
     modal = document.querySelector(".multiplayer-result");
+    populateWinnerModal(modal);
     modal.showModal();
   } else {
     modal = document.querySelector(".singleplayer-result");
@@ -362,9 +358,37 @@ function annouceResult() {
     document.querySelector("#time-taken").textContent = timer.textContent;
     document.querySelector("#moves-taken").textContent = `${moves + 1} Moves`;
   }
-  const ModalBtns = modal.querySelector(".btns");
-  appendButton(ModalBtns, "restart-btn", "restart", restartGameFn);
-  appendButton(ModalBtns, "new-game-btn", "new Game", newGameFn);
+}
+
+function populateWinnerModal(modal) {
+  playingPlayers.sort((a, b) => {
+    if (a > b) return 1;
+    else return -1;
+  });
+  // arranging based on Number of pairs found (greater -> smaller)
+  playingPlayers.sort((element1, element2) => {
+    if (element1.pairsFound > element2.pairsFound) return -1;
+    else return 1;
+  });
+  const playerWon = playingPlayers[0];
+  modal.querySelector(
+    "h2"
+  ).textContent = `Player ${playerWon.playerNumber} Wins!`;
+
+
+  playingPlayers.forEach((player, index) => {
+    const wrapperElement = document.createElement("div");
+    const span = document.createElement("span");
+    const para = document.createElement("p");
+    span.textContent = `Player ${player.playerNumber}`;
+    if (index == 0) span.textContent = `Player ${player.playerNumber} (Winner)`;
+    const pairsType = player.pairsFound > 1 ? "Pairs" : "Pair";
+    para.textContent = `${player.pairsFound}  ${pairsType}`;
+    wrapperElement.append(span, para);
+    playerStats.appendChild(wrapperElement);
+  });
+
+  console.log(playingPlayers);
 }
 
 function resetGame() {
@@ -374,6 +398,7 @@ function resetGame() {
 
   // resetting the moves and pairs count of players
   if (isMultiplayerMode) {
+    playerStats = null;
     playingPlayers.forEach((player) => {
       player.element.querySelector(".moves-count").textContent = 0;
       player.movesCount = 0;
