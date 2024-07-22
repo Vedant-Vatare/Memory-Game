@@ -1,14 +1,8 @@
 export default class playerDetails {
-  constructor(element){
+  constructor(element, playerNumber){
     this.element = element;
-    this.movesCount = 0;
     this.pairsFound = 0;
-  };
-  getMovesCount() {
-    return this.movesCount;
-  };
-  incremetCounter() {
-    this.movesCount++;
+    this.playerNumber = playerNumber;
   };
   incremetPairsFound() {
     this.pairsFound++;

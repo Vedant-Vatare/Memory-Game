@@ -53,7 +53,6 @@
         </span>
       </div>
       <dialog  class="singleplayer-result result-dialog">
-        <div class="player-won"></div>
         <h2>You did it!</h2>
         <p>Game over! Here's what you got on</p>
         <div class="score">
@@ -64,13 +63,20 @@
           <p>Moves taken</p>
           <span id="moves-taken">0</span>
         </div>
-        <div class="btns"></div>
+        <div class="btns">
+          <button class="restart-btn">restart</button>
+          <button class="new-game-btn">new Game</button>
+        </div>
       </dialog>
       <dialog class="multiplayer-result result-dialog">
+        <h2 class="winner"></h2>
+        <p>Game over! Here are the results</p>
         <div class="players-stats">
-          filled by JS
         </div>
-        <div class="btns"></div>
+        <div class="btns">
+          <button class="restart-btn">restart</button>
+          <button class="new-game-btn">new Game</button>
+        </div>
       </dialog>
     </div>
   </body>

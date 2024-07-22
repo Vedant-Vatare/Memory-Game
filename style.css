@@ -12,6 +12,7 @@
   --primary-bg-color: #fcfcfc;
   --heading-font-size: 2.5rem;
   --large-text-size: 1.5rem;
+  --extra-large-text-size: 1.75rem;
   --text-font-size: 1.25rem;
 }
 *{
@@ -355,6 +356,38 @@ dialog button {
 .hidden {
   display: none !important;
 }
+
+.players-stats {
+  display: block;
+  width: 100%;
+}
+.players-stats div {
+  margin-block: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  background-color:#dfe7ec ;
+  padding: 1rem 0.75rem;
+  border-radius: 10px;
+}
+.players-stats div:first-child {
+  background-color: var(--selected-btns-bg-color);
+  
+}
+.players-stats div:first-child > * {
+  color: var(--btns-color);
+}
+.players-stats span {
+  text-align: center;
+  color: var(--text-color);
+  font-weight: 700;
+  font-size: var(--extra-large-text-size);
+}
+.players-stats div p {
+  text-align: center;
+  font-style: var(--extra-large-text-size);
+  font-weight: 700;
+}
+
 /* Media Queries */
 @media (max-width: 560px) {
   :root {
@@ -386,7 +419,9 @@ dialog button {
   .game-info > span {
     flex-direction: column;
   }
- 
+  dialog {
+    padding: 3rem 1.5rem;
+  }
   .result-dialog h2 {
     margin: 0;
   }
