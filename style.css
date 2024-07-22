@@ -10,7 +10,7 @@
   --btns-hover-bg-color: #6395b8;
   --btns-color: #fcfcfc; 
   --primary-bg-color: #fcfcfc;
-  --heading-font-size: 2rem;
+  --heading-font-size: 2.5rem;
   --large-text-size: 1.5rem;
   --text-font-size: 1.25rem;
 }
@@ -44,7 +44,7 @@ body {
 .main-menu .card {
   position: relative;
   height: 70vh;
-  width: min(80vw, 700px);
+  width: min(90vw, 700px);
   border-radius: 20px;
   background-color: #fcfcfc;
 }
@@ -131,25 +131,25 @@ dialog {
   border: none;
 }
 
-#result-dialog {
+.result-dialog {
   display:flex;
   justify-content: space-between;
   width: min(90vw, 650px);
-  height: max(60vh, 475px);
+  /* height: max(60vh, 475px); */
   border-radius: 15px;
   outline: 1px solid black;
 }
-#result-dialog h2 {
+.result-dialog h2 {
   font-size: 3rem;
   text-align: center;
 }
-#result-dialog p {
+.result-dialog p {
   color: var(--text-color);
   font-size: var(--text-font-size);
   font-weight: 700;
   text-align: center;
 }
-#result-dialog .score{
+.result-dialog .score{
   background-color: #dfe7ec;
   width:100%;
   display: flex;
@@ -158,17 +158,17 @@ dialog {
   padding: 1rem 1rem;
   border-radius: 10px;
 }
-#result-dialog span {
+.result-dialog span {
   color: var(--background-color);
   font-size: var(--heading-font-size);
   font-weight: 700;
 }
-#result-dialog .btns {
+.result-dialog .btns {
   display: flex;
   width: 100%;
   gap: 1.5rem;
 }
-#result-dialog .btns > * {
+.result-dialog .btns > * {
   width: 100%;
 }
 dialog:not([open]){
@@ -357,6 +357,10 @@ dialog button {
 }
 /* Media Queries */
 @media (max-width: 560px) {
+  :root {
+    --heading-font-size: 2rem;
+
+  }
   .card .customize-options { width: 90%; }
   .customize-options .options {
     display: flex;
@@ -383,15 +387,12 @@ dialog button {
     flex-direction: column;
   }
  
-  #result-dialog h2 {
+  .result-dialog h2 {
     margin: 0;
   }
-  #result-dialog {
-    height: 70vh;
-    padding: 1rem;
-  }
- #result-dialog .score, #result-dialog .btns {
+ .result-dialog .score, .result-dialog .btns {
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
  }
 }
+

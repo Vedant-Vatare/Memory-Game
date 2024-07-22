@@ -16,9 +16,9 @@ let isMultiplayerMode,
   totalFoundTiles = 0,
   selectedTiles = [],
   playingPlayers = [];
-  window.addEventListener("DOMContentLoaded",()=>{
-    addSelectOptions();
-  })
+window.addEventListener("DOMContentLoaded", () => {
+  addSelectOptions();
+});
 function addSelectOptions() {
   let themeOptions = Array.from(
     document.querySelector(".theme-options").children
@@ -102,7 +102,7 @@ function createTiles() {
         "./icons/globe-solid.svg",
         "./icons/mug-saucer-solid.svg",
         "./icons/meteor-solid.svg",
-        "<img src='meteor-solid.svg'/>"
+        "<img src='meteor-solid.svg'/>",
       ];
       for (let i = 0; i < end; i++) {
         totalElements.push(imgPaths[i]);
@@ -147,14 +147,15 @@ function populatePlayers() {
     const player = createPlayer(i);
     document.querySelector(".game-info").appendChild(player);
   }
-  console.log(playingPlayers);
   timeElapsedTab.classList.add("hidden");
   movesCounterTab.classList.add("hidden");
   firstPlayersTurn();
 }
 
 function firstPlayersTurn() {
-
+  if (!isMultiplayerMode) return;
+  const currentActive = document.querySelector(".game-info .active-player");
+  currentActive?.classList.remove("active-player");
   playingPlayers[0].element.classList.add("active-player");
 }
 function createPlayer(index) {
@@ -163,18 +164,18 @@ function createPlayer(index) {
   playerElement.classList.add("player");
   SpanElement.classList.add("moves-count");
   SpanElement.textContent = 0;
-  let text = `P${index + 1}`
-  if(window.innerWidth > 760) text =`Player${index + 1}` 
+  let text = `P${index + 1}`;
+  if (window.innerWidth > 760) text = `Player${index + 1}`;
   const paraElement = document.createElement("p");
   paraElement.textContent = text;
   const playerObject = new playersObject(playerElement);
   playingPlayers.push(playerObject);
-  playerElement.append(paraElement, SpanElement)
+  playerElement.append(paraElement, SpanElement);
   return playerElement;
 }
 
 function updateTurns(currentPlayer) {
-  console.log(currentPlayer)
+  console.log(currentPlayer);
   currentPlayer.classList.remove("active-player");
   let nextPlayerIndex;
   playingPlayers.forEach((obj, index) => {
@@ -217,7 +218,6 @@ const restartGameFn = () => {
   manageTimer(true, Date.now());
   resetGame();
   createTiles(chosenTheme);
-  // const restartButton = document.querySelector(".restart-btn");
   if (document.querySelector("dialog[open]") !== null) closeModalFn();
   firstPlayersTurn();
 };
@@ -236,22 +236,22 @@ const closeModalFn = () => {
   document.querySelector("dialog[open]").close();
 };
 
-function addEvent(element, eventHandler){
+function addEvent(element, eventHandler) {
   element.addEventListener("click", eventHandler);
-};
+}
 
 class Button {
   constructor(className, text, eventHandler) {
     this.element = document.createElement("button");
     this.element.classList.add(className);
-    this.element.textContent = text; 
+    this.element.textContent = text;
     addEvent(this.element, eventHandler);
     // return this.element;
   }
   getElement() {
     return this.element;
   }
-};
+}
 
 function appendButton(element, className, text, event) {
   const button = new Button(className, text, event);
@@ -285,7 +285,7 @@ function createModalElement() {
 function incrementCounterForPlayer(curentPlayer) {
   if (isMultiplayerMode) {
     //for multiplayer game:
-    ++curentPlayer.querySelector(".moves-count").textContent
+    ++curentPlayer.querySelector(".moves-count").textContent;
   } else {
     movesCounter.textContent = ++moves;
   }
@@ -316,7 +316,7 @@ function checkTiles(tile) {
   setTimeout(() => {
     if (!(selectedTiles[0].innerHTML === selectedTiles[1].innerHTML)) {
       selectedTiles.forEach(closeTile);
-      if(isMultiplayerMode) updateTurns(currentPlayer)
+      if (isMultiplayerMode) updateTurns(currentPlayer);
     } else {
       selectedTiles.forEach((tile) => {
         tile.classList.add("found-tile");
@@ -343,26 +343,41 @@ function checkForWin() {
     annouceResult();
   }
 }
-
 function annouceResult() {
-  const resultsDialog = document.querySelector("#result-dialog .btns");
-  appendButton(resultsDialog, "restart-btn", "Restart", restartGameFn);
-  appendButton(resultsDialog, "new-game-btn", "Setup New Game", newGameFn);
-  if (!isMultiplayerMode) {
-    // showing the total time and moves taken
+  // const resultsDialog = document.querySelector(".result-dialog .btns");
+  // appendButton(resultsDialog, "restart-btn", "Restart", restartGameFn);
+  // appendButton(resultsDialog, "new-game-btn", "Setup New Game", newGameFn);
+  clearInterval(timeIntv);
+  let modal;
+  if (isMultiplayerMode) {
+    modal = document.querySelector(".multiplayer-result");
+    modal.showModal();
+  } else {
+    modal = document.querySelector(".singleplayer-result");
+    modal.showModal();
+    //showing the total time and moves taken
     Array.from(document.querySelectorAll(".score")).forEach((e) =>
       e.classList.remove("hidden")
     );
     document.querySelector("#time-taken").textContent = timer.textContent;
     document.querySelector("#moves-taken").textContent = `${moves + 1} Moves`;
-  } else {
   }
-  document.querySelector("#result-dialog").showModal();
-  clearInterval(timeIntv);
+  const ModalBtns = modal.querySelector(".btns");
+  appendButton(ModalBtns, "restart-btn", "restart", restartGameFn);
+  appendButton(ModalBtns, "new-game-btn", "new Game", newGameFn);
 }
 
 function resetGame() {
   gameBoard.innerHTML = null;
   selectedTiles = [];
   [movesCounter.innerHTML, moves, totalFoundTiles] = [0, 0, 0];
+
+  // resetting the moves and pairs count of players
+  if (isMultiplayerMode) {
+    playingPlayers.forEach((player) => {
+      player.element.querySelector(".moves-count").textContent = 0;
+      player.movesCount = 0;
+      player.pairsFound = 0;
+    });
+  }
 }

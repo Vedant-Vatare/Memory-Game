@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Memory Game</title>
     <link rel="stylesheet" href="style.css" />
     <script src="script.js" type="module" defer></script>
@@ -10,7 +10,7 @@
   <body>
     <div class="main-menu">
       <h1>Memory game</h1>
-      <div class="card ">
+      <div class="card">
         <div class="customize-options">
           <h3>Select Theme</h3>
           <div class="options theme-options">
@@ -40,10 +40,9 @@
           <button id="toggle-menu-bar" class="hidden">Menu</button>
         </div>
       </header>
-      <div class="game-board" data-tiles="16">
-      </div>
+      <div class="game-board" data-tiles="16"></div>
       <div class="game-info">
-        <span class="time-elapsed-tab hidden ">
+        <span class="time-elapsed-tab hidden">
           <p>Time</p>
           <span id="time-elapsed"></span>
         </span>
@@ -51,44 +50,27 @@
           <p>Moves</p>
           <span id="moves-count">0</span>
         </span>
-        <span class="player hidden">
-          <p>Player 1</p>
-          <span class="moves-count">0</span>
-        </span>
-        <span class="player hidden">
-          <p>Player 2</p>
-          <span class="moves-count">0</span>
-        </span>
-        <span class="player hidden">
-          <p>Player 3</p>
-          <span class="moves-count" >0</span>
-        </span>
-        <span class="player hidden">
-          <p>Player 4</p>
-          <span class="moves-count">0</span>
         </span>
       </div>
-      <dialog id="result-dialog">
+      <dialog  class="singleplayer-result result-dialog">
         <div class="player-won"></div>
         <h2>You did it!</h2>
         <p>Game over! Here's what you got on</p>
-        <div class="score hidden">
+        <div class="score">
           <p>Time Elapsed</p>
           <span id="time-taken">00:00</span>
         </div>
-        <div class="score hidden">
+        <div class="score">
           <p>Moves taken</p>
           <span id="moves-taken">0</span>
         </div>
+        <div class="btns"></div>
+      </dialog>
+      <dialog class="multiplayer-result result-dialog">
         <div class="players-stats">
-          <!-- filled by JS -->
-          <span>
-
-          </span>
+          filled by JS
         </div>
-        <div class="btns">
-          
-        </div>
+        <div class="btns"></div>
       </dialog>
     </div>
   </body>
