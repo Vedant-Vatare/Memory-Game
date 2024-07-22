@@ -19,6 +19,10 @@ let isMultiplayerMode,
   playingPlayers = [];
 window.addEventListener("DOMContentLoaded", () => {
   addSelectOptions();
+  const AllRestartBtns = document.querySelectorAll(".restart-btn");
+  AllRestartBtns.forEach((btn) => btn.addEventListener("click", restartGameFn));
+  const AllNewGameBtns = document.querySelectorAll(".new-game-btn");
+  AllNewGameBtns.forEach((btn) => btn.addEventListener("click", newGameFn));
 });
 function addSelectOptions() {
   let themeOptions = Array.from(
@@ -239,20 +243,18 @@ function addEvent(element, eventHandler) {
 }
 
 class Button {
-  constructor(className, text, eventHandler) {
+  constructor(className, text) {
     this.element = document.createElement("button");
     this.element.classList.add(className);
     this.element.textContent = text;
-    addEvent(this.element, eventHandler);
-    // return this.element;
   }
   getElement() {
     return this.element;
   }
 }
 
-function appendButton(element, className, text, event) {
-  const button = new Button(className, text, event);
+function appendButton(element, className, text) {
+  const button = new Button(className, text);
   element.append(button.getElement());
 }
 
@@ -261,8 +263,8 @@ function setButtonControls() {
   addEvent(startButton, startGameFn);
   // for bigger screen sizes:
   if (window.innerWidth > 760) {
-    appendButton(navMenu, "restart-btn", "restart", restartGameFn);
-    appendButton(navMenu, "new-game-btn", "New Game", newGameFn);
+    appendButton(navMenu, "restart-btn", "restart");
+    appendButton(navMenu, "new-game-btn", "New Game");
   } else {
     toggleMenuBtn.classList.remove("hidden");
     toggleMenuBtn.addEventListener("click", () => {
@@ -275,9 +277,11 @@ function createModalElement() {
   const modalElement = document.createElement("dialog");
   game.appendChild(modalElement);
   modalElement.id = "menu-dialog";
-  appendButton(modalElement, "restart-btn", "Restart", restartGameFn);
-  appendButton(modalElement, "new-game-btn", "New Game", newGameFn);
-  appendButton(modalElement, "resume-btn", "Resume Game", closeModalFn);
+  appendButton(modalElement, "restart-btn", "Restart");
+  appendButton(modalElement, "new-game-btn", "New Game");
+  appendButton(modalElement, "resume-btn", "Resume Game");
+  const resumeBtn = document.querySelector(".resume-btn");
+  resumeBtn.addEventListener("click", closeModalFn);
 }
 
 function incrementCounterForPlayer(curentPlayer) {
@@ -374,7 +378,6 @@ function populateWinnerModal(modal) {
   modal.querySelector(
     "h2"
   ).textContent = `Player ${playerWon.playerNumber} Wins!`;
-
 
   playingPlayers.forEach((player, index) => {
     const wrapperElement = document.createElement("div");
