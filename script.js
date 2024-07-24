@@ -1,4 +1,4 @@
-import playersObject from "./player.js";
+import { Player, Bot } from "./player.js";
 const startButton = document.querySelector("#start-btn");
 const mainMenu = document.querySelector(".main-menu");
 const game = document.querySelector(".game");
@@ -13,10 +13,15 @@ let isMultiplayerMode,
   chosenTheme,
   timeIntv,
   playingPlayersCount,
+  botsPlayingCount,
   moves = 0,
   totalFoundTiles = 0,
   selectedTiles = [],
   playingPlayers = [];
+const bots = {
+  areAllowed: false,
+  maxLimit: 0,
+};
 window.addEventListener("DOMContentLoaded", () => {
   addSelectOptions();
   const AllRestartBtns = document.querySelectorAll(".restart-btn");
@@ -34,21 +39,51 @@ function addSelectOptions() {
   let gridOptions = Array.from(
     document.querySelector(".grid-options").children
   );
+  let botOptions = Array.from(document.querySelector(".bot-options").children);
   themeOptions.forEach((element) => selectOptions(element));
-  playersOptions.forEach((element) => selectOptions(element));
   gridOptions.forEach((element) => selectOptions(element));
+  playersOptions.forEach((element) => {
+    selectOptions(element);
+    // toggle bots based on number of players
+    element.addEventListener("click", toggleBotsOption);
+  });
+  botOptions.forEach((element) => selectOptions(element));
 }
 
 function selectOptions(elem) {
   elem.addEventListener("click", (e) => {
     let getSiblings = Array.from(e.target.parentElement.children);
+    // for bots:
+    if (elem.parentElement.classList.contains("bot-options")) {
+      const numberOfBots = getSiblings.indexOf(elem);
+      const totalPlayers = Number(
+        document.querySelector(".player-options > [selected]").textContent
+      );
+      if (numberOfBots >= totalPlayers) {
+        console.log("cant select more bots");
+        return;
+      }
+    }
     getSiblings.forEach((sibling) => {
       if (sibling.hasAttribute("selected")) sibling.removeAttribute("selected");
     });
     e.target.setAttribute("selected", "");
   });
 }
-
+function toggleBotsOption() {
+  const botsOption = document.querySelector(".bot-options");
+  const playersCount = Number(
+    document.querySelector(".player-options > [selected]").textContent
+  );
+  if (playersCount > 1) {
+    bots.areAllowed = true;
+    bots.maxLimit = playersCount - 1;
+    botsOption.classList.add("allow-selection");
+  } else {
+    bots.areAllowed = false;
+    botsOption.classList.remove("allow-selection");
+  }
+}
 // Defining Event handlers on buttons:
 const startGameFn = () => {
   mainMenu.classList.add("hidden");
@@ -63,16 +98,23 @@ function setupGameLayout() {
   playingPlayersCount = Number(
     document.querySelector(".player-options > [selected]").textContent
   );
+  botsPlayingCount = Number(
+    document.querySelector(".bot-options > [selected]").textContent
+  );
+  console.log(botsPlayingCount);
   chosenGridSize = Number(
     document.querySelector(".grid-options > [selected]").dataset.total
   );
+
   // setting tiles(No. of boxes)
   if (playingPlayersCount == 1) isMultiplayerMode = false;
   else isMultiplayerMode = true;
   createTiles(chosenTheme);
   populatePlayers();
   manageTimer(true, Date.now());
+  console.log(playingPlayers);
 }
+// adjust bots selection based on number of players.
 
 function createTiles() {
   if (chosenGridSize == 16) gameBoard.dataset.tiles = 16;
@@ -136,6 +178,7 @@ function createTiles() {
 }
 
 function populatePlayers() {
+  playingPlayers = [];
   const allPlayersList = Array.from(document.querySelectorAll(".player"));
   allPlayersList.forEach((player) => player.classList.add("hidden"));
   const timeElapsedTab = document.querySelector(".time-elapsed-tab");
@@ -146,14 +189,20 @@ function populatePlayers() {
     movesCounterTab.classList.remove("hidden");
     return;
   }
-  // Adding players for multiplayer game mode :
-  for (let i = 0; i < playingPlayersCount; i++) {
-    const player = createPlayer(i);
-    document.querySelector(".game-info").appendChild(player);
-  }
   timeElapsedTab.classList.add("hidden");
   movesCounterTab.classList.add("hidden");
+  // Adding players for multiplayer game mode :
+  for (let i = 0; i < playingPlayersCount - botsPlayingCount; i++) {
+    const player = createPlayer("player", i);
+    document.querySelector(".game-info").appendChild(player);
+  }
+
   firstPlayersTurn();
+  if (!bots.areAllowed) return;
+  for (let i = 0; i < botsPlayingCount; i++) {
+    const botPlayer = createPlayer("Bot", i);
+    document.querySelector(".game-info").appendChild(botPlayer);
+  }
 }
 
 function firstPlayersTurn() {
@@ -162,22 +211,36 @@ function firstPlayersTurn() {
   currentActive?.classList.remove("active-player");
   playingPlayers[0].element.classList.add("active-player");
 }
-function createPlayer(index) {
+
+function createPlayer(playerType, index) {
   const playerElement = document.createElement("span");
   const SpanElement = document.createElement("span");
+  let prefix, playerObject;
+  if (playerType == "player") {
+    playerObject = new Player(playerElement, index + 1);
+    console.log("made a player");
+    prefix = window.innerWidth > 760 ? "Player" : "P";
+  } else {
+    playerObject = new Bot(playerElement, index + 1);
+    prefix = window.innerWidth > 760 ? "Bot" : "B";
+    console.log("made a bot");
+  }
+  playingPlayers.push(playerObject);
   playerElement.classList.add("player");
   SpanElement.classList.add("moves-count");
   SpanElement.textContent = 0;
-  let text = `P${index + 1}`;
-  if (window.innerWidth > 760) text = `Player ${index + 1}`;
+  const text = `${prefix} ${index + 1}`;
   const paraElement = document.createElement("p");
   paraElement.textContent = text;
-  const playerObject = new playersObject(playerElement, index + 1);
-  playingPlayers.push(playerObject);
   playerElement.append(paraElement, SpanElement);
   return playerElement;
 }
 
+// function PopulateBots() {
+//   for (let i = 0; i < botsPlayingCount; i++) {
+//     const botPlayer = createPlayer("Bot", i);
+//   }
+// }
 function updateTurns(currentPlayer) {
   currentPlayer.classList.remove("active-player");
   let nextPlayerIndex;

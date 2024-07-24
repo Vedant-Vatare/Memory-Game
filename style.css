@@ -44,7 +44,7 @@ body {
 }
 .main-menu .card {
   position: relative;
-  height: 70vh;
+  height: 75vh;
   width: min(90vw, 700px);
   border-radius: 20px;
   background-color: #fcfcfc;
@@ -88,9 +88,22 @@ body {
 .customize-options .options span[selected] {
   background-color: var(--selected-btns-bg-color);
 }
+.customize-options .bot-options:not(.allow-selection) span {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 
+.customize-options .bot-options.allow-selection span {
+ opacity: 1;
+}
+.customize-options .bot-options.allow-selection span[selected] {
+  background-color: var(--selected-btns-bg-color);
+  opacity: 1;
+}
+  
 .card .customize-options #start-btn{
-  padding: 0.5em;
+  padding: 0.3em;
   color: var(--btns-color);
   background-color: var(--main-btns-bg-color);
   font-size: var(--heading-font-size);
@@ -387,6 +400,9 @@ dialog button {
   :root {
     --heading-font-size: 2rem;
 
+  }
+  .main-menu h1 {
+    margin-block: 1.5rem;
   }
   .card .customize-options { width: 90%; }
   .customize-options .options {
