@@ -1,6 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap");
 
-:root { 
+:root {
   --background-color: #152938;
   --text-color: #7191a5;
   --buttons-bg-color: #bcced9;
@@ -8,14 +8,14 @@
   --main-btns-bg-color: #fda214;
   --main-btns-hover-bg-color: #ffb84a;
   --btns-hover-bg-color: #6395b8;
-  --btns-color: #fcfcfc; 
+  --btns-color: #fcfcfc;
   --primary-bg-color: #fcfcfc;
   --heading-font-size: 2.5rem;
   --large-text-size: 1.5rem;
   --extra-large-text-size: 1.75rem;
   --text-font-size: 1.25rem;
 }
-*{
+* {
   margin: 0px;
   padding: 0px;
   box-sizing: border-box;
@@ -24,7 +24,7 @@
 body {
   min-height: 100dvh;
   width: 100vw;
-  font-family: 'Atkinson Hyperlegible', sans-serif; 
+  font-family: "Atkinson Hyperlegible", sans-serif;
   overflow: hidden auto;
 }
 .main-menu {
@@ -64,12 +64,11 @@ body {
   color: var(--text-color);
 }
 .customize-options .options {
-  display: flex; 
+  display: flex;
   gap: 1rem;
   width: 100%;
-
 }
-.customize-options .options span{
+.customize-options .options span {
   padding: 0.35em 0.5em;
   width: 100%;
   color: var(--btns-color);
@@ -79,17 +78,17 @@ body {
   letter-spacing: 1px;
   border-radius: 55px;
   text-align: center;
-  transition:background-color 0.25s linear ;
+  transition: background-color 0.25s linear;
   cursor: pointer;
 }
-.customize-options .options span:hover{
+.customize-options .options span:hover {
   background-color: var(--btns-hover-bg-color);
 }
 .customize-options .options span[selected] {
   background-color: var(--selected-btns-bg-color);
 }
 
-.card .customize-options #start-btn{
+.card .customize-options #start-btn {
   padding: 0.3em;
   color: var(--btns-color);
   background-color: var(--main-btns-bg-color);
@@ -117,7 +116,7 @@ dialog {
   min-height: 40vh;
   width: min(80vw, 600px);
   position: absolute;
-  inset:0;
+  inset: 0;
   z-index: 10000;
   margin: auto;
   display: flex;
@@ -132,7 +131,7 @@ dialog {
 }
 
 .result-dialog {
-  display:flex;
+  display: flex;
   justify-content: space-between;
   width: min(90vw, 650px);
   border-radius: 15px;
@@ -148,9 +147,9 @@ dialog {
   font-weight: 700;
   text-align: center;
 }
-.result-dialog .score{
+.result-dialog .score {
   background-color: #dfe7ec;
-  width:100%;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -170,8 +169,8 @@ dialog {
 .result-dialog .btns > * {
   width: 100%;
 }
-dialog:not([open]){
-  display:none !important;
+dialog:not([open]) {
+  display: none !important;
 }
 dialog::backdrop {
   background-color: #152938;
@@ -190,7 +189,8 @@ dialog button {
   width: 85%;
 }
 
- .new-game-btn, .resume-btn { 
+.new-game-btn,
+.resume-btn {
   font-weight: 700;
   font-size: var(--large-text-size);
   color: var(--selected-btns-bg-color);
@@ -208,14 +208,18 @@ dialog button {
   justify-content: space-evenly;
 }
 
-.game header .restart-btn { margin-right: 1rem;}
+.game header .restart-btn {
+  margin-right: 1rem;
+}
 
-.new-game-btn:hover ,.resume-btn:hover{
+.new-game-btn:hover,
+.resume-btn:hover {
   background-color: var(--btns-hover-bg-color);
   color: var(--btns-color);
 }
 
- .restart-btn, #toggle-menu-bar {
+.restart-btn,
+#toggle-menu-bar {
   padding: 0.5em 0.75em;
   color: #fcfcfc;
   font-weight: 700;
@@ -225,7 +229,8 @@ dialog button {
   border: none;
   transition: background-color 250ms linear;
 }
-.restart-btn:hover , #toggle-menu-bar:hover {
+.restart-btn:hover,
+#toggle-menu-bar:hover {
   background-color: var(--main-btns-hover-bg-color) !important;
 }
 .game .game-board {
@@ -235,7 +240,7 @@ dialog button {
   gap: 1rem;
   margin-top: 3rem;
   height: min(70vw, 600px);
-  width:  min(70vw, 600px);
+  width: min(70vw, 600px);
 }
 .game-board div {
   position: relative;
@@ -251,14 +256,14 @@ dialog button {
   font-weight: 700;
   user-select: none;
   border-radius: 50%;
-  transition: background-color  250ms linear;
+  transition: background-color 250ms linear;
 }
 .game-board div::before {
-  content: '';
+  content: "";
   height: 100%;
-  width:100%;
+  width: 100%;
   position: absolute;
-  inset:0;
+  inset: 0;
   margin: auto;
   border-radius: 50%;
   background-color: var(--selected-btns-bg-color);
@@ -285,6 +290,11 @@ dialog button {
 .game-board[data-tiles="36"] {
   grid-template-columns: repeat(6, 1fr);
 }
+/* user cannot select the tiles when 
+   there is bot's move */
+.game-board:has(+ .game-info .bot-player.active-player) {
+  pointer-events: none;
+}
 .game-info {
   display: flex;
   width: 100%;
@@ -304,7 +314,7 @@ dialog button {
   transition: background-color 750ms normal;
 }
 
-.game-info > span p{
+.game-info > span p {
   color: var(--text-color);
   font-size: var(--text-font-size);
   font-weight: 700;
@@ -322,12 +332,12 @@ dialog button {
 .player.active-player::before {
   margin: 0;
   padding: 0;
-  content: '';
+  content: "";
   height: 13px;
   width: 27px;
   position: absolute;
-  top:1px;
-  left:50%;
+  top: 1px;
+  left: 50%;
   transform: translate(-50%, -100%);
   background-color: inherit;
   clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
@@ -359,13 +369,12 @@ dialog button {
   margin-block: 0.5rem;
   display: flex;
   justify-content: space-between;
-  background-color:#dfe7ec ;
+  background-color: #dfe7ec;
   padding: 1rem 0.75rem;
   border-radius: 10px;
 }
 .players-stats div:first-child {
   background-color: var(--selected-btns-bg-color);
-  
 }
 .players-stats div:first-child > * {
   color: var(--btns-color);
@@ -386,12 +395,13 @@ dialog button {
 @media (max-width: 560px) {
   :root {
     --heading-font-size: 2rem;
-
   }
   .main-menu h1 {
     margin-block: 1.5rem;
   }
-  .card .customize-options { width: 90%; }
+  .card .customize-options {
+    width: 90%;
+  }
   .customize-options .options {
     display: flex;
     gap: 0.5rem;
@@ -399,8 +409,12 @@ dialog button {
   .game header {
     margin-top: 2rem;
   }
-  .restart-btn, .new-game-btn, .resume-btn { font-size: var(--text-font-size);}
-  .game .game-board{
+  .restart-btn,
+  .new-game-btn,
+  .resume-btn {
+    font-size: var(--text-font-size);
+  }
+  .game .game-board {
     min-height: 250px;
     min-width: 250px;
     height: 95vw;
@@ -409,10 +423,12 @@ dialog button {
   }
   /* removing the hover state for the smaller (touch) devices */
   .game-board div:hover::before {
-    background-color: var(--selected-btns-bg-color); 
+    background-color: var(--selected-btns-bg-color);
   }
 
-  .game-info {  width: 95%; }
+  .game-info {
+    width: 95%;
+  }
   .game-info > span {
     flex-direction: column;
   }
@@ -422,9 +438,9 @@ dialog button {
   .result-dialog h2 {
     margin: 0;
   }
- .result-dialog .score, .result-dialog .btns {
-  flex-direction: column;
-  gap: 1rem;
- }
+  .result-dialog .score,
+  .result-dialog .btns {
+    flex-direction: column;
+    gap: 1rem;
+  }
 }
-

@@ -149,98 +149,6 @@ function createTiles() {
     });
   });
 }
-
-function populatePlayers() {
-  playingPlayers = [];
-  const allPlayersList = Array.from(document.querySelectorAll(".player"));
-  const playersAreaElement = document.querySelector(".game-info");
-  allPlayersList.forEach((player) => player.classList.add("hidden"));
-  const timeElapsedTab = document.querySelector(".time-elapsed-tab");
-  const movesCounterTab = document.querySelector(".moves-counter-tab");
-  if (!isMultiplayerMode) {
-    // show timer and moves for single player.
-    timeElapsedTab.classList.remove("hidden");
-    movesCounterTab.classList.remove("hidden");
-    return;
-  }
-  timeElapsedTab.classList.add("hidden");
-  movesCounterTab.classList.add("hidden");
-  // Adding players for multiplayer game mode :
-  for (let i = 0; i < playingPlayersCount; i++) {
-    const player = createPlayer("Player", playingPlayers.length);
-    playersAreaElement.appendChild(player);
-  }
-  firstPlayersTurn();
-  if (!areBotsAllowed) return;
-  for (let i = 0; i < botsPlayingCount; i++) {
-    const botPlayer = createPlayer("Bot", playingPlayers.length, i + 1);
-    playersAreaElement.appendChild(botPlayer);
-  }
-}
-
-function firstPlayersTurn() {
-  if (!isMultiplayerMode) return;
-  const currentActive = document.querySelector(".game-info .active-player");
-  currentActive?.classList.remove("active-player");
-  playingPlayers[0].element.classList.add("active-player");
-}
-
-function createPlayer(playerType, playerNumber, botNumber = null) {
-  const playerElement = document.createElement("span");
-  const SpanElement = document.createElement("span");
-  let prefix, playerObject;
-  if (playerType == "Player") {
-    playerObject = new Player(playerElement, playerNumber + 1);
-    prefix = window.innerWidth > 760 ? "Player" : "P";
-  } else {
-    playerObject = new Bot(playerElement, playerNumber + 1, botNumber);
-    prefix = window.innerWidth > 760 ? "Bot" : "B";
-  }
-  playingPlayers.push(playerObject);
-  playerElement.classList.add("player");
-  SpanElement.classList.add("moves-count");
-  SpanElement.textContent = 0;
-  const text = `${prefix} ${playerNumber + 1}`;
-  const paraElement = document.createElement("p");
-  paraElement.textContent = text;
-  playerElement.append(paraElement, SpanElement);
-  return playerElement;
-}
-
-function nextPlayerTurn(currentPlayer) {
-  currentPlayer.classList.remove("active-player");
-  let nextPlayerIndex;
-  playingPlayers.forEach((obj, index) => {
-    if (obj.element == currentPlayer) {
-      nextPlayerIndex = index + 1;
-    }
-  });
-  if (playingPlayers.length == nextPlayerIndex) nextPlayerIndex = 0;
-  playingPlayers[nextPlayerIndex].element.classList.add("active-player");
-}
-
-function manageTimer(playState, startTime) {
-  // play timer only for single player:
-  timer.textContent = "00 : 00";
-  if (playState == true && playingPlayersCount == 1) {
-    timeIntv = setInterval(() => {
-      updateTimer(startTime);
-    }, 1000);
-  } else {
-    clearInterval(timeIntv);
-  }
-}
-
-function updateTimer(startTime) {
-  let diff = new Date() - startTime;
-  let minutes = Math.floor(diff / 60000);
-  diff = diff % 60000;
-  let seconds = Math.floor(diff / 1000);
-  minutes < 10 ? (minutes = "0" + minutes) : minutes;
-  seconds < 10 ? (seconds = "0" + seconds) : seconds;
-  timer.textContent = `${minutes} : ${seconds}`;
-}
-
 const restartGameFn = () => {
   clearInterval(timeIntv);
   manageTimer(true, Date.now());
@@ -309,29 +217,158 @@ function createModalElement() {
   resumeBtn.addEventListener("click", closeModalFn);
 }
 
-function incrementCounterForPlayer(curentPlayer) {
+function incrementCounterForPlayer(currentPlayer) {
   if (isMultiplayerMode) {
     //for multiplayer game:
-    ++curentPlayer.querySelector(".moves-count").textContent;
+    ++currentPlayer.querySelector(".moves-count").textContent;
   } else {
     movesCounter.textContent = ++moves;
   }
 }
 function openTile(div) {
-  div.classList.add("open");
+  if (div) div.classList.add("open");
 }
 function closeTile(div) {
-  div.classList.remove("open");
+  if (div) div.classList.remove("open");
 }
 
+function populatePlayers() {
+  playingPlayers = [];
+  const allPlayersList = Array.from(document.querySelectorAll(".player"));
+  const playersAreaElement = document.querySelector(".game-info");
+  allPlayersList.forEach((player) => player.classList.add("hidden"));
+  const timeElapsedTab = document.querySelector(".time-elapsed-tab");
+  const movesCounterTab = document.querySelector(".moves-counter-tab");
+  if (!isMultiplayerMode) {
+    // show timer and moves for single player.
+    timeElapsedTab.classList.remove("hidden");
+    movesCounterTab.classList.remove("hidden");
+    return;
+  }
+  timeElapsedTab.classList.add("hidden");
+  movesCounterTab.classList.add("hidden");
+  // Adding players for multiplayer game mode :
+  for (let i = 0; i < playingPlayersCount; i++) {
+    const player = createPlayer("Player", playingPlayers.length);
+    playersAreaElement.appendChild(player);
+  }
+  firstPlayersTurn();
+  if (!areBotsAllowed) return;
+  for (let i = 0; i < botsPlayingCount; i++) {
+    const botPlayer = createPlayer("Bot", playingPlayers.length, i + 1);
+    playersAreaElement.appendChild(botPlayer);
+  }
+}
+
+function firstPlayersTurn() {
+  if (!isMultiplayerMode) return;
+  const currentActive = document.querySelector(".game-info .active-player");
+  currentActive?.classList.remove("active-player");
+  playingPlayers[0].element.classList.add("active-player");
+}
+
+function createPlayer(playerType, playerNumber, botNumber = null) {
+  const playerElement = document.createElement("span");
+  const SpanElement = document.createElement("span");
+  let prefix, playerObject;
+  if (playerType == "Player") {
+    playerObject = new Player(playerElement, playerNumber + 1);
+    prefix = window.innerWidth > 760 ? "Player" : "P";
+  } else {
+    playerObject = new Bot(playerElement, playerNumber + 1, botNumber);
+    prefix = window.innerWidth > 760 ? "Bot" : "B";
+    playerElement.classList.add("bot-player");
+  }
+  playingPlayers.push(playerObject);
+  playerElement.classList.add("player");
+  SpanElement.classList.add("moves-count");
+  SpanElement.textContent = 0;
+  const text = `${prefix} ${playerNumber + 1}`;
+  const paraElement = document.createElement("p");
+  paraElement.textContent = text;
+  playerElement.append(paraElement, SpanElement);
+  return playerElement;
+}
+
+function nextPlayerTurn(currentPlayer) {
+  currentPlayer.classList.remove("active-player");
+  let nextPlayerIndex;
+  playingPlayers.forEach((obj, index) => {
+    if (obj.element == currentPlayer) {
+      nextPlayerIndex = index + 1;
+    }
+  });
+  if (playingPlayers.length == nextPlayerIndex) nextPlayerIndex = 0;
+  playingPlayers[nextPlayerIndex].element.classList.add("active-player");
+  if (playingPlayers[nextPlayerIndex].type == "Bot") MakeBotMove();
+}
+
+function manageTimer(playState, startTime) {
+  // play timer only for single player:
+  timer.textContent = "00 : 00";
+  if (playState == true && playingPlayersCount == 1) {
+    timeIntv = setInterval(() => {
+      updateTimer(startTime);
+    }, 1000);
+  } else {
+    clearInterval(timeIntv);
+  }
+}
+
+function updateTimer(startTime) {
+  let diff = new Date() - startTime;
+  let minutes = Math.floor(diff / 60000);
+  diff = diff % 60000;
+  let seconds = Math.floor(diff / 1000);
+  minutes < 10 ? (minutes = "0" + minutes) : minutes;
+  seconds < 10 ? (seconds = "0" + seconds) : seconds;
+  timer.textContent = `${minutes} : ${seconds}`;
+}
+
+function MakeBotMove() {
+  console.log("bot is making a move");
+  const allTiles = Array.from(gameBoard.children);
+  const availableTiles = allTiles.filter(
+    (tile) => !tile.classList.contains("found-tile")
+  );
+  const firstRandomTile = getRandomTileForBot(availableTiles, null);
+  // should not be same as first tile
+  const secondRandomTile = getRandomTileForBot(availableTiles, firstRandomTile);
+
+  setTimeout(() => {
+    chooseTileForBot(firstRandomTile);
+  }, 1000);
+  setTimeout(() => {
+    chooseTileForBot(secondRandomTile);
+  }, 2000);
+}
+function chooseTileForBot(tile) {
+  openTile(tile);
+  checkTiles(tile);
+}
+function getRandomTileForBot(availableTiles, lastTile) {
+  if (availableTiles < 1) return;
+  const tile =
+    availableTiles[Math.floor(Math.random() * availableTiles.length)];
+  if (tile === lastTile) {
+    console.log(tile, lastTile);
+    console.log("....... it was same at this time.");
+    return getRandomTileForBot(availableTiles, tile);
+  } else {
+    return tile;
+  }
+}
 function checkTiles(tile) {
-  // checking all the wrong selections first.
+  // console.log("checking tile", selectedTiles)
   if (
+    tile === undefined ||
     tile.classList.contains("found-tile") ||
     tile == selectedTiles[0] ||
     selectedTiles.length == 2
-  )
+  ) {
+    console.log("selected tiles are same");
     return;
+  }
 
   if (selectedTiles.length < 2) {
     selectedTiles.push(tile);
@@ -342,15 +379,23 @@ function checkTiles(tile) {
   setTimeout(() => {
     if (!(selectedTiles[0].innerHTML === selectedTiles[1].innerHTML)) {
       selectedTiles.forEach(closeTile);
+      // console.log("selected tiles are 0 now.")
+      selectedTiles = [];
       if (isMultiplayerMode) nextPlayerTurn(currentPlayer);
     } else {
+      console.log("tiles matched");
       selectedTiles.forEach((tile) => tile.classList.add("found-tile"));
       //increment found pairs count for current player
       if (isMultiplayerMode) {
-        const element = playingPlayers.find(
+        const elementIndex = playingPlayers.findIndex(
           (obj) => obj.element === currentPlayer
         );
-        element.incremetPairsFound();
+        playingPlayers[elementIndex].incremetPairsFound();
+        if (playingPlayers[elementIndex].type == "Bot") {
+          console.log("extra chance!");
+          selectedTiles = [];
+          MakeBotMove();
+        }
       }
       checkForWin();
     }
@@ -360,6 +405,7 @@ function checkTiles(tile) {
 }
 
 function checkForWin() {
+  console.log("checking for win.");
   totalFoundTiles += 2;
   // console.log("checking for win")
   if (!(totalFoundTiles == chosenGridSize)) {
@@ -400,14 +446,15 @@ function populateWinnerModal(modal) {
   const playerWon = playingPlayers[0];
   modal.querySelector(
     "h2"
-  ).textContent = `Player ${playerWon.playerNumber} Wins!`;
+  ).textContent = `${playerWon.type} ${playerWon.playerNumber} Wins!`;
 
   playingPlayers.forEach((player, index) => {
     const wrapperElement = document.createElement("div");
     const span = document.createElement("span");
     const para = document.createElement("p");
     span.textContent = `${player.type} ${player.playerNumber}`;
-    if (index == 0) span.textContent = `${player.type} ${player.playerNumber} (Winner)`;
+    if (index == 0)
+      span.textContent = `${player.type} ${player.playerNumber} (Winner)`;
     const pairsType = player.pairsFound > 1 ? "Pairs" : "Pair";
     para.textContent = `${player.pairsFound}  ${pairsType}`;
     wrapperElement.append(span, para);
