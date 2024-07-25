@@ -14,14 +14,11 @@ let isMultiplayerMode,
   timeIntv,
   playingPlayersCount,
   botsPlayingCount,
+  areBotsAllowed,
   moves = 0,
   totalFoundTiles = 0,
   selectedTiles = [],
   playingPlayers = [];
-const bots = {
-  areAllowed: false,
-  maxLimit: 0,
-};
 window.addEventListener("DOMContentLoaded", () => {
   addSelectOptions();
   const AllRestartBtns = document.querySelectorAll(".restart-btn");
@@ -44,8 +41,6 @@ function addSelectOptions() {
   gridOptions.forEach((element) => selectOptions(element));
   playersOptions.forEach((element) => {
     selectOptions(element);
-    // toggle bots based on number of players
-    element.addEventListener("click", toggleBotsOption);
   });
   botOptions.forEach((element) => selectOptions(element));
 }
@@ -53,37 +48,13 @@ function addSelectOptions() {
 function selectOptions(elem) {
   elem.addEventListener("click", (e) => {
     let getSiblings = Array.from(e.target.parentElement.children);
-    // for bots:
-    if (elem.parentElement.classList.contains("bot-options")) {
-      const numberOfBots = getSiblings.indexOf(elem);
-      const totalPlayers = Number(
-        document.querySelector(".player-options > [selected]").textContent
-      );
-      if (numberOfBots >= totalPlayers) {
-        console.log("cant select more bots");
-        return;
-      }
-    }
     getSiblings.forEach((sibling) => {
       if (sibling.hasAttribute("selected")) sibling.removeAttribute("selected");
     });
     e.target.setAttribute("selected", "");
   });
 }
-function toggleBotsOption() {
-  const botsOption = document.querySelector(".bot-options");
-  const playersCount = Number(
-    document.querySelector(".player-options > [selected]").textContent
-  );
-  if (playersCount > 1) {
-    bots.areAllowed = true;
-    bots.maxLimit = playersCount - 1;
-    botsOption.classList.add("allow-selection");
-  } else {
-    bots.areAllowed = false;
-    botsOption.classList.remove("allow-selection");
-  }
-}
+
 // Defining Event handlers on buttons:
 const startGameFn = () => {
   mainMenu.classList.add("hidden");
@@ -101,20 +72,22 @@ function setupGameLayout() {
   botsPlayingCount = Number(
     document.querySelector(".bot-options > [selected]").textContent
   );
-  console.log(botsPlayingCount);
+  areBotsAllowed = botsPlayingCount !== 0 ? true : false;
   chosenGridSize = Number(
     document.querySelector(".grid-options > [selected]").dataset.total
   );
 
   // setting tiles(No. of boxes)
-  if (playingPlayersCount == 1) isMultiplayerMode = false;
-  else isMultiplayerMode = true;
+  if (playingPlayersCount + botsPlayingCount > 1) {
+    isMultiplayerMode = true;
+  } else {
+    isMultiplayerMode = false;
+  }
   createTiles(chosenTheme);
   populatePlayers();
   manageTimer(true, Date.now());
   console.log(playingPlayers);
 }
-// adjust bots selection based on number of players.
 
 function createTiles() {
   if (chosenGridSize == 16) gameBoard.dataset.tiles = 16;
@@ -180,6 +153,7 @@ function createTiles() {
 function populatePlayers() {
   playingPlayers = [];
   const allPlayersList = Array.from(document.querySelectorAll(".player"));
+  const playersAreaElement = document.querySelector(".game-info");
   allPlayersList.forEach((player) => player.classList.add("hidden"));
   const timeElapsedTab = document.querySelector(".time-elapsed-tab");
   const movesCounterTab = document.querySelector(".moves-counter-tab");
@@ -192,16 +166,15 @@ function populatePlayers() {
   timeElapsedTab.classList.add("hidden");
   movesCounterTab.classList.add("hidden");
   // Adding players for multiplayer game mode :
-  for (let i = 0; i < playingPlayersCount - botsPlayingCount; i++) {
-    const player = createPlayer("player", i);
-    document.querySelector(".game-info").appendChild(player);
+  for (let i = 0; i < playingPlayersCount; i++) {
+    const player = createPlayer("Player", playingPlayers.length);
+    playersAreaElement.appendChild(player);
   }
-
   firstPlayersTurn();
-  if (!bots.areAllowed) return;
+  if (!areBotsAllowed) return;
   for (let i = 0; i < botsPlayingCount; i++) {
-    const botPlayer = createPlayer("Bot", i);
-    document.querySelector(".game-info").appendChild(botPlayer);
+    const botPlayer = createPlayer("Bot", playingPlayers.length, i + 1);
+    playersAreaElement.appendChild(botPlayer);
   }
 }
 
@@ -212,36 +185,29 @@ function firstPlayersTurn() {
   playingPlayers[0].element.classList.add("active-player");
 }
 
-function createPlayer(playerType, index) {
+function createPlayer(playerType, playerNumber, botNumber = null) {
   const playerElement = document.createElement("span");
   const SpanElement = document.createElement("span");
   let prefix, playerObject;
-  if (playerType == "player") {
-    playerObject = new Player(playerElement, index + 1);
-    console.log("made a player");
+  if (playerType == "Player") {
+    playerObject = new Player(playerElement, playerNumber + 1);
     prefix = window.innerWidth > 760 ? "Player" : "P";
   } else {
-    playerObject = new Bot(playerElement, index + 1);
+    playerObject = new Bot(playerElement, playerNumber + 1, botNumber);
     prefix = window.innerWidth > 760 ? "Bot" : "B";
-    console.log("made a bot");
   }
   playingPlayers.push(playerObject);
   playerElement.classList.add("player");
   SpanElement.classList.add("moves-count");
   SpanElement.textContent = 0;
-  const text = `${prefix} ${index + 1}`;
+  const text = `${prefix} ${playerNumber + 1}`;
   const paraElement = document.createElement("p");
   paraElement.textContent = text;
   playerElement.append(paraElement, SpanElement);
   return playerElement;
 }
 
-// function PopulateBots() {
-//   for (let i = 0; i < botsPlayingCount; i++) {
-//     const botPlayer = createPlayer("Bot", i);
-//   }
-// }
-function updateTurns(currentPlayer) {
+function nextPlayerTurn(currentPlayer) {
   currentPlayer.classList.remove("active-player");
   let nextPlayerIndex;
   playingPlayers.forEach((obj, index) => {
@@ -249,11 +215,8 @@ function updateTurns(currentPlayer) {
       nextPlayerIndex = index + 1;
     }
   });
-  if (playingPlayers.length == nextPlayerIndex) {
-    playingPlayers[0].element.classList.add("active-player");
-  } else {
-    playingPlayers[nextPlayerIndex].element.classList.add("active-player");
-  }
+  if (playingPlayers.length == nextPlayerIndex) nextPlayerIndex = 0;
+  playingPlayers[nextPlayerIndex].element.classList.add("active-player");
 }
 
 function manageTimer(playState, startTime) {
@@ -291,7 +254,7 @@ const newGameFn = () => {
   game.classList.add("hidden");
   mainMenu.classList.remove("hidden");
   manageTimer(false);
-  //find an open model and close it
+  // find an open model and close it
   if (document.querySelector("dialog[open]") !== null) closeModalFn();
   resetGame();
 };
@@ -379,19 +342,17 @@ function checkTiles(tile) {
   setTimeout(() => {
     if (!(selectedTiles[0].innerHTML === selectedTiles[1].innerHTML)) {
       selectedTiles.forEach(closeTile);
-      if (isMultiplayerMode) updateTurns(currentPlayer);
+      if (isMultiplayerMode) nextPlayerTurn(currentPlayer);
     } else {
-      selectedTiles.forEach((tile) => {
-        tile.classList.add("found-tile");
-        //increment found pairs count for current player
-        if (isMultiplayerMode) {
-          const element = playingPlayers.find(
-            (obj) => obj.element === currentPlayer
-          );
-          element.incremetPairsFound();
-        }
-        checkForWin();
-      });
+      selectedTiles.forEach((tile) => tile.classList.add("found-tile"));
+      //increment found pairs count for current player
+      if (isMultiplayerMode) {
+        const element = playingPlayers.find(
+          (obj) => obj.element === currentPlayer
+        );
+        element.incremetPairsFound();
+      }
+      checkForWin();
     }
     selectedTiles = [];
     incrementCounterForPlayer(currentPlayer);
@@ -399,7 +360,8 @@ function checkTiles(tile) {
 }
 
 function checkForWin() {
-  ++totalFoundTiles;
+  totalFoundTiles += 2;
+  // console.log("checking for win")
   if (!(totalFoundTiles == chosenGridSize)) {
     return;
   } else {
@@ -444,8 +406,8 @@ function populateWinnerModal(modal) {
     const wrapperElement = document.createElement("div");
     const span = document.createElement("span");
     const para = document.createElement("p");
-    span.textContent = `Player ${player.playerNumber}`;
-    if (index == 0) span.textContent = `Player ${player.playerNumber} (Winner)`;
+    span.textContent = `${player.type} ${player.playerNumber}`;
+    if (index == 0) span.textContent = `${player.type} ${player.playerNumber} (Winner)`;
     const pairsType = player.pairsFound > 1 ? "Pairs" : "Pair";
     para.textContent = `${player.pairsFound}  ${pairsType}`;
     wrapperElement.append(span, para);

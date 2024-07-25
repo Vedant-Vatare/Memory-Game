@@ -88,20 +88,7 @@ body {
 .customize-options .options span[selected] {
   background-color: var(--selected-btns-bg-color);
 }
-.customize-options .bot-options:not(.allow-selection) span {
-  opacity: 0.6;
-  cursor: not-allowed;
-  pointer-events: none;
-}
 
-.customize-options .bot-options.allow-selection span {
- opacity: 1;
-}
-.customize-options .bot-options.allow-selection span[selected] {
-  background-color: var(--selected-btns-bg-color);
-  opacity: 1;
-}
-  
 .card .customize-options #start-btn{
   padding: 0.3em;
   color: var(--btns-color);
