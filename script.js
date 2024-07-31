@@ -18,7 +18,9 @@ let isMultiplayerMode,
   moves = 0,
   totalFoundTiles = 0,
   selectedTiles = [],
-  playingPlayers = [];
+  playingPlayers = [],
+  botsMemory = [];
+const BotsMemoryLimit = 4;
 window.addEventListener("DOMContentLoaded", () => {
   addSelectOptions();
   const AllRestartBtns = document.querySelectorAll(".restart-btn");
@@ -326,38 +328,95 @@ function updateTimer(startTime) {
 }
 
 function MakeBotMove() {
-  console.log("bot is making a move");
-  const allTiles = Array.from(gameBoard.children);
-  const availableTiles = allTiles.filter(
-    (tile) => !tile.classList.contains("found-tile")
-  );
-  const firstRandomTile = getRandomTileForBot(availableTiles, null);
-  // should not be same as first tile
-  const secondRandomTile = getRandomTileForBot(availableTiles, firstRandomTile);
+  // check for the same in memory.
+  // if not, select random tile and again find for a match in memory.
+  // if not found then select random tile
+  
+  let firstChosenTile, secondChosenTile;
+  let memoryResponse = checkTilesInMemory();
+  
+  if (memoryResponse) {
+    [firstChosenTile, secondChosenTile] = memoryResponse;
+    console.log("got two same in memory")
+  } else {
+    console.log("has selected first randomly.")
+    firstChosenTile = getRandomTileForBot(null);
+    updatebotsMemory();
+    
+    memoryResponse = checkTilesInMemory();
+    if (memoryResponse) {
+      [firstChosenTile, secondChosenTile] = memoryResponse;
+    } else {
+      secondChosenTile = getRandomTileForBot(firstChosenTile);
+      console.log("selected second randomly.")
+    }
+  }
+  console.log(firstChosenTile, secondChosenTile);
+  setTimeout(() => {
+    chooseTileForBot(firstChosenTile);
+    checkTilesInMemory();
+  }, 1000);
 
   setTimeout(() => {
-    chooseTileForBot(firstRandomTile);
-  }, 1000);
-  setTimeout(() => {
-    chooseTileForBot(secondRandomTile);
+    chooseTileForBot(secondChosenTile);
   }, 2000);
 }
+
+function checkTilesInMemory() {
+  // [1,2,3,5,2,6]
+  let matchedTiles
+   botsMemory.forEach((tile)=>{
+    botsMemory.forEach((nestedTile)=>{
+      if (tile.isEqualNode(nestedTile) && !(tile.isSameNode(nestedTile))) {
+        console.log("got the tiles.")
+        matchedTiles = [tile, nestedTile]
+      }
+    })
+  })
+  console.log(matchedTiles)
+  return matchedTiles;
+}
+
 function chooseTileForBot(tile) {
   openTile(tile);
   checkTiles(tile);
 }
-function getRandomTileForBot(availableTiles, lastTile) {
+
+function getRandomTileForBot(lastTile) {
+  const totalTiles = Array.from(gameBoard.children);
+  const availableTiles = totalTiles.filter(tile=> !tile.classList.contains("found-tile"))
+
   if (availableTiles < 1) return;
   const tile =
     availableTiles[Math.floor(Math.random() * availableTiles.length)];
   if (tile === lastTile) {
-    console.log(tile, lastTile);
-    console.log("....... it was same at this time.");
     return getRandomTileForBot(availableTiles, tile);
   } else {
     return tile;
   }
 }
+
+function updatebotsMemory(tilesState) {
+  if (tilesState == "delete") {
+    selectedTiles.forEach((tile) => {
+      const tileIndex = botsMemory.indexOf(tile);
+
+      if (tileIndex !== -1) botsMemory.splice(tileIndex, 1);
+    });
+    return;
+  }
+  // Adding tiles to memory of bots.
+  if(botsMemory.length > BotsMemoryLimit) {
+    // remove the memory of oldest remembered tile.
+    botsMemory.shift();
+  }
+  selectedTiles.forEach((tile) => {
+    if (!botsMemory.includes(tile)) {
+      botsMemory.push(tile);
+    }
+  });
+}
+
 function checkTiles(tile) {
   // console.log("checking tile", selectedTiles)
   if (
@@ -377,30 +436,36 @@ function checkTiles(tile) {
   // check the two tiles now:
   const currentPlayer = document.querySelector(".active-player");
   setTimeout(() => {
-    if (!(selectedTiles[0].innerHTML === selectedTiles[1].innerHTML)) {
+    if (!(selectedTiles[0].isEqualNode(selectedTiles[1]))) {
+
       selectedTiles.forEach(closeTile);
-      // console.log("selected tiles are 0 now.")
+      // Remember the revealed tiles tiles.
+      if (areBotsAllowed) updatebotsMemory("revealed");
       selectedTiles = [];
-      if (isMultiplayerMode) nextPlayerTurn(currentPlayer);
-    } else {
-      console.log("tiles matched");
-      selectedTiles.forEach((tile) => tile.classList.add("found-tile"));
-      //increment found pairs count for current player
       if (isMultiplayerMode) {
-        const elementIndex = playingPlayers.findIndex(
-          (obj) => obj.element === currentPlayer
-        );
-        playingPlayers[elementIndex].incremetPairsFound();
-        if (playingPlayers[elementIndex].type == "Bot") {
-          console.log("extra chance!");
-          selectedTiles = [];
-          MakeBotMove();
-        }
+        nextPlayerTurn(currentPlayer);
       }
-      checkForWin();
+      return;
     }
-    selectedTiles = [];
+    // tiles are matched.
     incrementCounterForPlayer(currentPlayer);
+    selectedTiles.forEach((tile) => tile.classList.add("found-tile"));
+    let elementIndex;
+    if (isMultiplayerMode) {
+      elementIndex = playingPlayers.findIndex(
+        (obj) => obj.element === currentPlayer
+      );
+      playingPlayers[elementIndex].incremetPairsFound();
+      // delete the memory of tile for bots as they are found now.
+      if (areBotsAllowed) updatebotsMemory("delete");
+      selectedTiles = [];
+      if (playingPlayers[elementIndex].type == "Bot") {
+        console.log("extra chance!");
+        MakeBotMove();
+      }
+    }
+    // debugger;
+    checkForWin();
   }, 1000);
 }
 
@@ -460,6 +525,7 @@ function populateWinnerModal(modal) {
     wrapperElement.append(span, para);
     playerStats.appendChild(wrapperElement);
   });
+  debugger;
 }
 
 function resetGame() {
