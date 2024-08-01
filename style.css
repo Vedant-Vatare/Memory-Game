@@ -254,6 +254,7 @@ dialog button {
   color: var(--primary-bg-color);
   background-color: var(--main-btns-bg-color);
   font-weight: 700;
+  cursor: pointer;
   user-select: none;
   border-radius: 50%;
   transition: background-color 250ms linear;

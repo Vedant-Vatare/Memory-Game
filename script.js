@@ -328,18 +328,12 @@ function updateTimer(startTime) {
 }
 
 function MakeBotMove() {
-  // check for the same in memory.
-  // if not, select random tile and again find for a match in memory.
-  // if not found then select random tile
-  
   let firstChosenTile, secondChosenTile;
   let memoryResponse = checkTilesInMemory();
   
   if (memoryResponse) {
     [firstChosenTile, secondChosenTile] = memoryResponse;
-    console.log("got two same in memory")
   } else {
-    console.log("has selected first randomly.")
     firstChosenTile = getRandomTileForBot(null);
     updatebotsMemory();
     
@@ -348,10 +342,8 @@ function MakeBotMove() {
       [firstChosenTile, secondChosenTile] = memoryResponse;
     } else {
       secondChosenTile = getRandomTileForBot(firstChosenTile);
-      console.log("selected second randomly.")
     }
   }
-  console.log(firstChosenTile, secondChosenTile);
   setTimeout(() => {
     chooseTileForBot(firstChosenTile);
     checkTilesInMemory();
@@ -363,17 +355,14 @@ function MakeBotMove() {
 }
 
 function checkTilesInMemory() {
-  // [1,2,3,5,2,6]
   let matchedTiles
    botsMemory.forEach((tile)=>{
     botsMemory.forEach((nestedTile)=>{
       if (tile.isEqualNode(nestedTile) && !(tile.isSameNode(nestedTile))) {
-        console.log("got the tiles.")
         matchedTiles = [tile, nestedTile]
       }
     })
   })
-  console.log(matchedTiles)
   return matchedTiles;
 }
 
@@ -407,18 +396,19 @@ function updatebotsMemory(tilesState) {
   }
   // Adding tiles to memory of bots.
   if(botsMemory.length > BotsMemoryLimit) {
-    // remove the memory of oldest remembered tile.
-    botsMemory.shift();
+    // remove the memory of random remembered tile.
+    const index = Math.floor(Math.random() * botsMemory.length);
+    botsMemory.splice(index, 1);
   }
   selectedTiles.forEach((tile) => {
     if (!botsMemory.includes(tile)) {
       botsMemory.push(tile);
     }
   });
+  // console.log("in memory:", botsMemory)
 }
 
 function checkTiles(tile) {
-  // console.log("checking tile", selectedTiles)
   if (
     tile === undefined ||
     tile.classList.contains("found-tile") ||
