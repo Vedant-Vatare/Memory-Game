@@ -78,7 +78,7 @@ body {
   letter-spacing: 1px;
   border-radius: 55px;
   text-align: center;
-  transition: background-color 0.25s linear;
+  transition: background-color 200ms linear;
   cursor: pointer;
 }
 .customize-options .options span:hover {
@@ -198,6 +198,7 @@ dialog button {
   border-radius: 50px;
   border: none;
   padding: 0.5em 1em;
+  transition: background-color 250ms linear;
 }
 .game header #toggle-menu-bar {
   background-color: var(--main-btns-bg-color);
@@ -270,7 +271,7 @@ dialog button {
   background-color: var(--selected-btns-bg-color);
   z-index: 10;
   scale: 1;
-  transition: all 250ms linear;
+  transition: scale 250ms linear;
 }
 .game-board div.open::before {
   scale: 0;
