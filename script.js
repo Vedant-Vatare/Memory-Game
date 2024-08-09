@@ -1,4 +1,6 @@
 import { Player, Bot } from "./player.js";
+const navMenuButton = document.querySelector(".nav-menu-btn");
+const closeNavButton = document.querySelector(".close-nav-btn");
 const startButton = document.querySelector("#start-btn");
 const mainMenu = document.querySelector(".main-menu");
 const game = document.querySelector(".game");
@@ -21,6 +23,8 @@ let isMultiplayerMode,
   playingPlayers = [],
   botsMemory = [];
 const BotsMemoryLimit = 6;
+// const ButtonSound = new Audio("./assets/audio/select-audio.mp3");
+// const buttonHoverSound = new Audio("./assets/audio/UI_hover.mp3");
 window.addEventListener("DOMContentLoaded", () => {
   addSelectOptions();
   const AllRestartBtns = document.querySelectorAll(".restart-btn");
@@ -28,6 +32,15 @@ window.addEventListener("DOMContentLoaded", () => {
   const AllNewGameBtns = document.querySelectorAll(".new-game-btn");
   AllNewGameBtns.forEach((btn) => btn.addEventListener("click", newGameFn));
 });
+navMenuButton.addEventListener("click", () => {
+  const navSection = document.querySelector(".nav-section");
+  navSection.classList.toggle("nav-open");
+});
+closeNavButton.addEventListener("click", () => {
+  const navSection = document.querySelector(".nav-section");
+  navSection.classList.toggle("nav-open");
+});
+
 function addSelectOptions() {
   let themeOptions = Array.from(
     document.querySelector(".theme-options").children
@@ -74,17 +87,13 @@ function setupGameLayout() {
   botsPlayingCount = Number(
     document.querySelector(".bot-options > [selected]").textContent
   );
-  areBotsAllowed = botsPlayingCount !== 0 ? true : false;
+  areBotsAllowed = botsPlayingCount !== 0;
   chosenGridSize = Number(
     document.querySelector(".grid-options > [selected]").dataset.total
   );
 
-  // setting tiles(No. of boxes)
-  if (playingPlayersCount + botsPlayingCount > 1) {
-    isMultiplayerMode = true;
-  } else {
-    isMultiplayerMode = false;
-  }
+  isMultiplayerMode = playingPlayersCount + botsPlayingCount > 1;
+
   createTiles(chosenTheme);
   populatePlayers();
   if (isMultiplayerMode) {
@@ -96,46 +105,7 @@ function setupGameLayout() {
 }
 
 function createTiles() {
-  if (chosenGridSize == 16) gameBoard.dataset.tiles = 16;
-  else gameBoard.dataset.tiles = 36;
-  let totalElements = [];
-  addInArray(1, chosenGridSize / 2);
-
-  function addInArray(start, end) {
-    if (chosenTheme == "Numbers") {
-      for (let i = start; i <= end; i++) {
-        totalElements.push(i);
-        totalElements.push(i);
-      }
-    } else {
-      const imgPaths = [
-        "./icons/house-solid.svg",
-        "./icons/heart-solid.svg",
-        "./icons/atom-solid.svg",
-        "./icons/bell-solid.svg",
-        "./icons/bomb-solid.svg",
-        "./icons/bookmark-solid.svg",
-        "./icons/brain-solid.svg",
-        "./icons/bug-solid.svg",
-        "./icons/car-rear-solid.svg",
-        "./icons/cloud-solid.svg",
-        "./icons/code-branch-solid.svg",
-        "./icons/dice-six-solid.svg",
-        "./icons/gem-regular.svg",
-        "./icons/dragon-solid.svg",
-        "./icons/fire-solid.svg",
-        "./icons/globe-solid.svg",
-        "./icons/mug-saucer-solid.svg",
-        "./icons/meteor-solid.svg",
-        "<img src='meteor-solid.svg'/>",
-      ];
-      for (let i = 0; i < end; i++) {
-        totalElements.push(imgPaths[i]);
-        totalElements.push(imgPaths[i]);
-      }
-    }
-    totalElements.sort(() => Math.random() - 0.5);
-  }
+  let totalElements = getTileElements();
   totalElements.forEach((data) => {
     const wrapperElement = document.createElement("div");
     if (chosenTheme == "Numbers") {
@@ -154,6 +124,45 @@ function createTiles() {
       }
     });
   });
+}
+function getTileElements() {
+  if (chosenGridSize == 16) gameBoard.dataset.tiles = 16;
+  else gameBoard.dataset.tiles = 36;
+  const totalElements = [];
+  const end = chosenGridSize / 2;
+
+  if (chosenTheme === "Numbers") {
+    for (let i = 1; i <= end; i++) {
+      totalElements.push(i, i);
+    }
+  } else {
+    const imgPaths = [
+      ".assets/icons/house-solid.svg",
+      ".assets/icons/heart-solid.svg",
+      ".assets/icons/atom-solid.svg",
+      ".assets/icons/bell-solid.svg",
+      ".assets/icons/bomb-solid.svg",
+      ".assets/icons/bookmark-solid.svg",
+      ".assets/icons/brain-solid.svg",
+      ".assets/icons/bug-solid.svg",
+      ".assets/icons/car-rear-solid.svg",
+      ".assets/icons/cloud-solid.svg",
+      ".assets/icons/code-branch-solid.svg",
+      ".assets/icons/dice-six-solid.svg",
+      ".assets/icons/gem-regular.svg",
+      ".assets/icons/dragon-solid.svg",
+      ".assets/icons/fire-solid.svg",
+      ".assets/icons/globe-solid.svg",
+      ".assets/icons/mug-saucer-solid.svg",
+      ".assets/icons/meteor-solid.svg",
+    ];
+
+    for (let i = 0; i < end; i++) {
+      totalElements.push(imgPaths[i], imgPaths[i]);
+    }
+  }
+
+  return totalElements.sort(() => Math.random() - 0.5);
 }
 const restartGameFn = () => {
   resetGame();
@@ -227,10 +236,11 @@ function createModalElement() {
   resumeBtn.addEventListener("click", closeModalFn);
 }
 
-function incrementCounterForPlayer(currentPlayer) {
+function incrementCounterForPlayer(playerObject) {
   if (isMultiplayerMode) {
     //for multiplayer game:
-    ++currentPlayer.querySelector(".moves-count").textContent;
+    playerObject.incremetPairsFound()
+    ++playerObject.element.querySelector(".moves-count").textContent;
   } else {
     movesCounter.textContent = ++moves;
   }
@@ -299,11 +309,11 @@ function createPlayer(playerType, playerNumber, botNumber = null) {
   return playerElement;
 }
 
-function nextPlayerTurn(currentPlayer) {
-  currentPlayer.classList.remove("active-player");
+function nextPlayerTurn(playerObject) {
+  playerObject.element.classList.remove("active-player");
   let nextPlayerIndex;
   playingPlayers.forEach((obj, index) => {
-    if (obj.element == currentPlayer) {
+    if (obj.element == playerObject.element) {
       nextPlayerIndex = index + 1;
     }
   });
@@ -334,9 +344,9 @@ function updateTimer(startTime) {
   timer.textContent = `${minutes} : ${seconds}`;
 }
 
-function MakeBotMove() {
+function MakeBotMove(bot) {
   let firstChosenTile, secondChosenTile;
-  let memoryResponse = checkTilesInMemory();
+  let memoryResponse = checkTilesInMemory(bot);
   if (memoryResponse) {
     [firstChosenTile, secondChosenTile] = memoryResponse;
   } else {
@@ -353,14 +363,14 @@ function MakeBotMove() {
   setTimeout(() => {
     chooseTileForBot(firstChosenTile);
     checkTilesInMemory();
-  }, 1000);
+  }, 750);
 
   setTimeout(() => {
     chooseTileForBot(secondChosenTile);
-  }, 1500);
+  }, 1200);
 }
 
-function checkTilesInMemory() {
+function checkTilesInMemory(bot) {
   let matchedTiles = null;
   botsMemory.forEach((tile) => {
     botsMemory.forEach((nestedTile) => {
@@ -385,6 +395,7 @@ function getRandomTileForBot(lastTile) {
   );
 
   if (availableTiles < 1) return;
+
   const randomTile =
     availableTiles[Math.floor(Math.random() * availableTiles.length)];
   if (randomTile === lastTile) {
@@ -419,68 +430,77 @@ function updatebotsMemory(tilesState) {
 }
 
 function checkTiles(tile) {
-  if (
-    tile === undefined ||
-    tile.classList.contains("found-tile") ||
-    tile == selectedTiles[0] ||
-    selectedTiles.length == 2
-  ) {
-    return;
-  }
-
-  if (selectedTiles.length < 2) {
+  if (validateTile(tile)) {
     selectedTiles.push(tile);
   }
-  if (selectedTiles.length !== 2) return;
-  // check the two tiles now:
+
+  if (selectedTiles.length === 2) {
+    processSelectedTiles();
+  }
+}
+
+function validateTile(tile) {
+  return !(
+    tile === undefined ||
+    tile.classList.contains("found-tile") ||
+    tile === selectedTiles[0] ||
+    selectedTiles.length === 2
+  );
+}
+
+function processSelectedTiles() {
   const currentPlayer = document.querySelector(".active-player");
+
   setTimeout(() => {
-    if (selectedTiles < 2) return;
-    if (!selectedTiles[0].isEqualNode(selectedTiles[1])) {
-      selectedTiles.forEach(closeTile);
-      // Remember the revealed tiles tiles.
-      if (areBotsAllowed) updatebotsMemory("revealed");
-      selectedTiles = [];
-      if (isMultiplayerMode) {
-        nextPlayerTurn(currentPlayer);
-      }
-      return;
-    }
-    // tiles are matched.
-    incrementCounterForPlayer(currentPlayer);
-    selectedTiles.forEach((tile) => tile.classList.add("found-tile"));
-    let elementIndex;
-    if (isMultiplayerMode) {
-      elementIndex = playingPlayers.findIndex(
-        (obj) => obj.element === currentPlayer
-      );
-      playingPlayers[elementIndex].incremetPairsFound();
-      // delete the memory of tile for bots as they are found now.
-      if (areBotsAllowed) updatebotsMemory("delete");
-      selectedTiles = [];
-      if (playingPlayers[elementIndex].type == "Bot") {
-        MakeBotMove();
-      }
+    if (selectedTiles.length < 2) return;
+    const currentPlayerObject = playingPlayers.find(
+      (obj) => obj.element === currentPlayer
+    );
+    if (selectedTiles[0].isEqualNode(selectedTiles[1])) {
+      handleTileMatch(currentPlayerObject);
     } else {
-      selectedTiles = [];
-    }
-    const isWon = checkForWin();
-    if (isWon) {
-      annouceResult();
-      return;
+      handleTileMismatch(currentPlayerObject);
     }
   }, 1000);
 }
 
-function checkForWin() {
-  totalFoundTiles += 2;
-  if (!(totalFoundTiles == chosenGridSize)) {
-    return false;
-  } else {
-    return true;
+function handleTileMatch(playerObject) {
+  selectedTiles.forEach((tile) => tile.classList.add("found-tile"));
+  incrementCounterForPlayer(playerObject);
+
+  const isWon = checkForWin();
+  if (isWon) {
+    displayGameResult();
+    return;
+  }
+  if (isMultiplayerMode) {
+    if (areBotsAllowed) updatebotsMemory("delete");
+
+    selectedTiles = [];
+    if (playerObject.type === "Bot") {
+      MakeBotMove(playerObject);
+    }
+  }
+   else {
+    selectedTiles = [];
   }
 }
-function annouceResult() {
+
+function handleTileMismatch(playerObject) {
+  selectedTiles.forEach(closeTile);
+  if (areBotsAllowed) updatebotsMemory("revealed");
+  selectedTiles = [];
+
+  if (isMultiplayerMode) {
+    nextPlayerTurn(playerObject);
+  }
+}
+
+function checkForWin() {
+  totalFoundTiles += 2;
+  return totalFoundTiles == chosenGridSize;
+}
+function displayGameResult() {
   clearInterval(timeIntv);
   let modal;
   if (isMultiplayerMode) {

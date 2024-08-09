@@ -15,8 +15,6 @@ export class Bot extends Player {
     super(element, playerNumber);
     this.botNumber = botNumber;
     this.type = "Bot";
-  }
-  makeMove() {
-    console.log(this.element, "bot is making a move.");
+    this.memorisedTiles = [];
   }
 }
