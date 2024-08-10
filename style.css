@@ -37,22 +37,14 @@ body {
 }
 
 .nav-menu-btn {
-  top: 3rem;
-  right: 3rem;
-  font-size: var(--large-text-size);
-  font-weight: 700;
   color: var(--selected-btns-bg-color);
-  background-color: #dfe7ec;
-  border-radius: 50px;
+  font-size: var(--large-text-size);
+  padding: 0.3em 0.5em;
+  font-weight: 700;
+  border-radius: 2rem;
   border: none;
   letter-spacing: 2px;
   cursor: pointer;
-}
-.nav-menu-btn a {
-  display: block;
-  height: 3rem;
-  width: 3rem;
-  object-fit: cover;
 }
 .nav-menu-btn:has(+ .main-menu.hidden) {
   display: none;
@@ -65,10 +57,8 @@ body {
   background-color: var(--primary-bg-color);
   transform: translate(100%, 0%);
   transition: transform 250ms ease-in;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+  display: grid;
+  place-items: center;
 }
 .nav-section span {
   font-size: var(--heading-font-size);
@@ -81,14 +71,22 @@ body {
   top: 3rem;
   right: 3rem;
   cursor: pointer;
-  height: 0.25rem;
-  width: 2rem;
-  border-radius: 5px;
-  background-color: #000;
+  border: none;
 }
-
+.close-nav-btn .close-nav-icon {
+  display: block;
+  height: 3rem;
+  width: 3rem;
+  background-color: var(--primary-bg-color);
+}
 .nav-section.nav-open .close-nav-btn::after {
   transform: translateY(10px);
+}
+.nav-section .nav-menu-options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 .main-menu {
   position: absolute;
@@ -103,26 +101,25 @@ body {
 
 .main-menu header h1 {
   font-size: var(--heading-font-size);
-  /* margin-block: 3rem; */
   color: #fcfcfc;
 }
 
 .main-menu .card {
   position: relative;
-  height: 75vh;
   width: min(90vw, 700px);
   border-radius: 20px;
   background-color: #fcfcfc;
+  padding: 1rem 0.5rem;
+  display: grid;
+  place-items: center;
 }
 .card .customize-options {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  height: 100%;
+  height: 95%;
   width: 85%;
   display: flex;
   justify-content: space-evenly;
   flex-direction: column;
+  gap: 0.35rem;
 }
 .customize-options h3 {
   font-size: var(--text-font-size);
@@ -132,6 +129,10 @@ body {
   display: flex;
   gap: 1rem;
   width: 100%;
+  margin-bottom: 1.25rem;
+}
+.customize-options .options h3 {
+  color: red;
 }
 .customize-options .options span {
   padding: 0.35em 0.5em;
@@ -152,9 +153,13 @@ body {
 .customize-options .options span[selected] {
   background-color: var(--selected-btns-bg-color);
 }
+.customize-options .game-mode-options span{
+  font-size: var(--text-font-size);
+}
 
 .card .customize-options #start-btn {
   padding: 0.3em;
+  margin-bottom: 1rem;
   color: var(--btns-color);
   background-color: var(--main-btns-bg-color);
   font-size: var(--heading-font-size);
@@ -436,6 +441,7 @@ dialog button {
   margin-block: 0.5rem;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background-color: #dfe7ec;
   padding: 1rem 0.75rem;
   border-radius: 10px;
@@ -463,15 +469,7 @@ dialog button {
   :root {
     --heading-font-size: 2rem;
   }
-  /* .nav-menu-btn {
-    top: 2rem;
-    right: 1.5rem;
-  } */
-  .main-menu h1 {
-    align-self: flex-start;
 
-    margin: 2rem 1.5rem;
-  }
   .card .customize-options {
     width: 90%;
   }

@@ -13,6 +13,7 @@ const playerStats = document.querySelector(".players-stats");
 let isMultiplayerMode,
   chosenGridSize,
   chosenTheme,
+  chosenGameMode,
   timeIntv,
   playingPlayersCount,
   botsPlayingCount,
@@ -20,25 +21,15 @@ let isMultiplayerMode,
   moves = 0,
   totalFoundTiles = 0,
   selectedTiles = [],
-  playingPlayers = [],
-  botsMemory = [];
+  playingPlayers = [];
 const BotsMemoryLimit = 6;
-// const ButtonSound = new Audio("./assets/audio/select-audio.mp3");
-// const buttonHoverSound = new Audio("./assets/audio/UI_hover.mp3");
+
 window.addEventListener("DOMContentLoaded", () => {
   addSelectOptions();
   const AllRestartBtns = document.querySelectorAll(".restart-btn");
   AllRestartBtns.forEach((btn) => btn.addEventListener("click", restartGameFn));
   const AllNewGameBtns = document.querySelectorAll(".new-game-btn");
   AllNewGameBtns.forEach((btn) => btn.addEventListener("click", newGameFn));
-});
-navMenuButton.addEventListener("click", () => {
-  const navSection = document.querySelector(".nav-section");
-  navSection.classList.toggle("nav-open");
-});
-closeNavButton.addEventListener("click", () => {
-  const navSection = document.querySelector(".nav-section");
-  navSection.classList.toggle("nav-open");
 });
 
 function addSelectOptions() {
@@ -52,12 +43,16 @@ function addSelectOptions() {
     document.querySelector(".grid-options").children
   );
   let botOptions = Array.from(document.querySelector(".bot-options").children);
+  let gameModeOptions = Array.from(
+    document.querySelector(".game-mode-options").children
+  );
   themeOptions.forEach((element) => selectOptions(element));
   gridOptions.forEach((element) => selectOptions(element));
   playersOptions.forEach((element) => {
     selectOptions(element);
   });
   botOptions.forEach((element) => selectOptions(element));
+  gameModeOptions.forEach((element) => selectOptions(element));
 }
 
 function selectOptions(elem) {
@@ -91,9 +86,10 @@ function setupGameLayout() {
   chosenGridSize = Number(
     document.querySelector(".grid-options > [selected]").dataset.total
   );
-
+  chosenGameMode = document.querySelector(
+    ".game-mode-options > [selected]"
+  ).textContent;
   isMultiplayerMode = playingPlayersCount + botsPlayingCount > 1;
-
   createTiles(chosenTheme);
   populatePlayers();
   if (isMultiplayerMode) {
@@ -137,24 +133,24 @@ function getTileElements() {
     }
   } else {
     const imgPaths = [
-      ".assets/icons/house-solid.svg",
-      ".assets/icons/heart-solid.svg",
-      ".assets/icons/atom-solid.svg",
-      ".assets/icons/bell-solid.svg",
-      ".assets/icons/bomb-solid.svg",
-      ".assets/icons/bookmark-solid.svg",
-      ".assets/icons/brain-solid.svg",
-      ".assets/icons/bug-solid.svg",
-      ".assets/icons/car-rear-solid.svg",
-      ".assets/icons/cloud-solid.svg",
-      ".assets/icons/code-branch-solid.svg",
-      ".assets/icons/dice-six-solid.svg",
-      ".assets/icons/gem-regular.svg",
-      ".assets/icons/dragon-solid.svg",
-      ".assets/icons/fire-solid.svg",
-      ".assets/icons/globe-solid.svg",
-      ".assets/icons/mug-saucer-solid.svg",
-      ".assets/icons/meteor-solid.svg",
+      "./assets/icons/house-solid.svg",
+      "./assets/icons/heart-solid.svg",
+      "./assets/icons/atom-solid.svg",
+      "./assets/icons/bell-solid.svg",
+      "./assets/icons/bomb-solid.svg",
+      "./assets/icons/bookmark-solid.svg",
+      "./assets/icons/brain-solid.svg",
+      "./assets/icons/bug-solid.svg",
+      "./assets/icons/car-rear-solid.svg",
+      "./assets/icons/cloud-solid.svg",
+      "./assets/icons/dice-six-solid.svg",
+      "./assets/icons/code-branch-solid.svg",
+      "./assets/icons/gem-regular.svg",
+      "./assets/icons/dragon-solid.svg",
+      "./assets/icons/fire-solid.svg",
+      "./assets/icons/globe-solid.svg",
+      "./assets/icons/mug-saucer-solid.svg",
+      "./assets/icons/meteor-solid.svg",
     ];
 
     for (let i = 0; i < end; i++) {
@@ -182,7 +178,6 @@ const newGameFn = () => {
   if (document.querySelector("dialog[open]") !== null) closeModalFn();
   game.classList.add("hidden");
   mainMenu.classList.remove("hidden");
-  manageTimer(false);
   resetGame();
 };
 
@@ -239,7 +234,7 @@ function createModalElement() {
 function incrementCounterForPlayer(playerObject) {
   if (isMultiplayerMode) {
     //for multiplayer game:
-    playerObject.incremetPairsFound()
+    playerObject.incremetPairsFound();
     ++playerObject.element.querySelector(".moves-count").textContent;
   } else {
     movesCounter.textContent = ++moves;
@@ -309,17 +304,16 @@ function createPlayer(playerType, playerNumber, botNumber = null) {
   return playerElement;
 }
 
-function nextPlayerTurn(playerObject) {
-  playerObject.element.classList.remove("active-player");
-  let nextPlayerIndex;
-  playingPlayers.forEach((obj, index) => {
-    if (obj.element == playerObject.element) {
-      nextPlayerIndex = index + 1;
-    }
-  });
+function nextPlayerTurn(currentPlayerObject) {
+  currentPlayerObject.element.classList.remove("active-player");
+  let nextPlayerIndex = playingPlayers.indexOf(currentPlayerObject) + 1;
+
   if (playingPlayers.length == nextPlayerIndex) nextPlayerIndex = 0;
-  playingPlayers[nextPlayerIndex].element.classList.add("active-player");
-  if (playingPlayers[nextPlayerIndex].type == "Bot") MakeBotMove();
+  const nextPlayerObject = playingPlayers[nextPlayerIndex];
+
+  nextPlayerObject.element.classList.add("active-player");
+
+  if (nextPlayerObject.type == "Bot") MakeBotMove(nextPlayerObject);
 }
 
 function manageTimer(playState, startTime) {
@@ -330,7 +324,7 @@ function manageTimer(playState, startTime) {
       updateTimer(startTime);
     }, 1000);
   } else {
-    clearInterval(timeIntv);
+    if (timeIntv) clearInterval(timeIntv);
   }
 }
 
@@ -351,32 +345,32 @@ function MakeBotMove(bot) {
     [firstChosenTile, secondChosenTile] = memoryResponse;
   } else {
     firstChosenTile = getRandomTileForBot(null);
-    updatebotsMemory();
-    // after first tile check for match in bot memory.
-    memoryResponse = checkTilesInMemory();
+    updatebotsMemory(bot);
+    memoryResponse = checkTilesInMemory(bot);
     if (memoryResponse) {
       [firstChosenTile, secondChosenTile] = memoryResponse;
     } else {
       secondChosenTile = getRandomTileForBot(firstChosenTile);
     }
   }
+  // if (secondChosenTile == firstChosenTile) getRandomTileForBot(firstChosenTile);
   setTimeout(() => {
     chooseTileForBot(firstChosenTile);
-    checkTilesInMemory();
-  }, 750);
+    checkTilesInMemory(bot);
+  }, 500);
 
   setTimeout(() => {
     chooseTileForBot(secondChosenTile);
-  }, 1200);
+  }, 1000);
 }
 
 function checkTilesInMemory(bot) {
   let matchedTiles = null;
-  botsMemory.forEach((tile) => {
-    botsMemory.forEach((nestedTile) => {
+  bot.memorisedTiles.forEach((tile) => {
+    bot.memorisedTiles.forEach((anotherTile) => {
       // find the equal element (duplicates in bot memory).
-      if (tile.isEqualNode(nestedTile) && !tile.isSameNode(nestedTile)) {
-        matchedTiles = [tile, nestedTile];
+      if (tile.isEqualNode(anotherTile) && !tile.isSameNode(anotherTile)) {
+        matchedTiles = [tile, anotherTile];
       }
     });
   });
@@ -390,43 +384,45 @@ function chooseTileForBot(tile) {
 
 function getRandomTileForBot(lastTile) {
   const totalTiles = Array.from(gameBoard.children);
-  const availableTiles = totalTiles.filter(
-    (tile) => !tile.classList.contains("found-tile")
-  );
+  const availableTiles = totalTiles.filter((tile) => {
+    return !tile.classList.contains("found-tile") && tile !== lastTile;
+  });
 
-  if (availableTiles < 1) return;
+  if (availableTiles.length < 1) return null;
 
   const randomTile =
     availableTiles[Math.floor(Math.random() * availableTiles.length)];
-  if (randomTile === lastTile) {
-    return getRandomTileForBot(availableTiles, randomTile);
-  } else {
-    return randomTile;
-  }
+  return randomTile;
 }
 
 function updatebotsMemory(tilesState) {
+  const allBotPlayers = playingPlayers.filter((player) => player.type == "Bot");
   if (tilesState == "delete") {
-    selectedTiles.forEach((tile) => {
-      const tileIndex = botsMemory.indexOf(tile);
+    allBotPlayers.forEach((bot) => {
+      selectedTiles.forEach((tile) => {
+        const tileIndex = bot.memorisedTiles.indexOf(tile);
 
-      if (tileIndex !== -1) {
-        botsMemory.splice(tileIndex, 1);
-      }
+        if (tileIndex !== -1) bot.memorisedTiles.splice(tileIndex, 1);
+      });
     });
     return;
   }
   // Adding tiles to memory of bots.
-  selectedTiles.forEach((tile) => {
-    if (!botsMemory.includes(tile)) {
-      botsMemory.push(tile);
+  allBotPlayers.forEach((bot) => {
+    selectedTiles.forEach((tile) => {
+      if (!bot.memorisedTiles.includes(tile)) {
+        bot.memorisedTiles.push(tile);
+      }
+    });
+  });
+
+  // remove the memory of random remembered tile.
+  allBotPlayers.forEach((bot) => {
+    if (bot.memorisedTiles.length > BotsMemoryLimit) {
+      const index = Math.floor(Math.random() * bot.memorisedTiles.length);
+      bot.memorisedTiles.splice(index, 1);
     }
   });
-  if (botsMemory.length > BotsMemoryLimit) {
-    // remove the memory of random remembered tile.
-    const index = Math.floor(Math.random() * botsMemory.length);
-    botsMemory.splice(index, 1);
-  }
 }
 
 function checkTiles(tile) {
@@ -449,10 +445,9 @@ function validateTile(tile) {
 }
 
 function processSelectedTiles() {
+  if (selectedTiles.length < 2) return;
   const currentPlayer = document.querySelector(".active-player");
-
   setTimeout(() => {
-    if (selectedTiles.length < 2) return;
     const currentPlayerObject = playingPlayers.find(
       (obj) => obj.element === currentPlayer
     );
@@ -461,10 +456,11 @@ function processSelectedTiles() {
     } else {
       handleTileMismatch(currentPlayerObject);
     }
-  }, 1000);
+  }, 1500);
 }
 
 function handleTileMatch(playerObject) {
+  debugger;
   selectedTiles.forEach((tile) => tile.classList.add("found-tile"));
   incrementCounterForPlayer(playerObject);
 
@@ -473,15 +469,14 @@ function handleTileMatch(playerObject) {
     displayGameResult();
     return;
   }
+
   if (isMultiplayerMode) {
     if (areBotsAllowed) updatebotsMemory("delete");
-
     selectedTiles = [];
     if (playerObject.type === "Bot") {
       MakeBotMove(playerObject);
     }
-  }
-   else {
+  } else {
     selectedTiles = [];
   }
 }
@@ -524,7 +519,7 @@ function populateWinnerModal(modal) {
     if (a > b) return 1;
     else return -1;
   });
-  // arranging based on Number of pairs found (greater -> smaller)
+  // arranging based on Number of pairs found (greater to smaller)
   playingPlayers.sort((element1, element2) => {
     if (element1.pairsFound > element2.pairsFound) return -1;
     else return 1;
@@ -549,18 +544,20 @@ function populateWinnerModal(modal) {
 }
 
 function resetGame() {
+  manageTimer(false);
+  // reset game variables.
   gameBoard.innerHTML = null;
   selectedTiles = [];
-  botsMemory = [];
   [movesCounter.innerHTML, moves, totalFoundTiles] = [0, 0, 0];
 
-  // resetting the moves and pairs count of players
-  if (isMultiplayerMode) {
-    playingPlayers.forEach((player) => {
-      player.element.querySelector(".moves-count").textContent = 0;
-      player.movesCount = 0;
-      player.pairsFound = 0;
-    });
-    playerStats.innerHTML = null;
-  }
+  if (isMultiplayerMode) resetPlayersData();
+}
+function resetPlayersData() {
+  playingPlayers.forEach((player) => {
+    player.element.querySelector(".moves-count").textContent = 0;
+    player.movesCount = 0;
+    player.pairsFound = 0;
+    if (player.type == "Bot") player.memorisedTiles = [];
+  });
+  playerStats.innerHTML = null;
 }
