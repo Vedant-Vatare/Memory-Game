@@ -1,6 +1,4 @@
 import { Player, Bot } from "./player.js";
-const navMenuButton = document.querySelector(".nav-menu-btn");
-const closeNavButton = document.querySelector(".close-nav-btn");
 const startButton = document.querySelector("#start-btn");
 const mainMenu = document.querySelector(".main-menu");
 const game = document.querySelector(".game");
@@ -10,6 +8,8 @@ const gameBoard = document.querySelector(".game-board");
 const timer = document.querySelector("#time-elapsed");
 const movesCounter = document.querySelector("#moves-count");
 const playerStats = document.querySelector(".players-stats");
+const teamGameInfo = document.querySelector(".team-game-info");
+
 let isMultiplayerMode,
   chosenGridSize,
   chosenTheme,
@@ -52,16 +52,27 @@ function addSelectOptions() {
     selectOptions(element);
   });
   botOptions.forEach((element) => selectOptions(element));
-  gameModeOptions.forEach((element) => selectOptions(element));
+  gameModeOptions.forEach((element) => {
+    selectOptions(element);
+  });
 }
 
 function selectOptions(elem) {
   elem.addEventListener("click", (e) => {
-    let getSiblings = Array.from(e.target.parentElement.children);
-    getSiblings.forEach((sibling) => {
-      if (sibling.hasAttribute("selected")) sibling.removeAttribute("selected");
-    });
+    const previousSelected = elem.parentElement.querySelector("[selected]")
+    if(previousSelected)  previousSelected.removeAttribute("selected");
     e.target.setAttribute("selected", "");
+
+    // making bots equal to the selected players count.
+    if (elem.dataset.mode == "teams") {
+      const botOptions = document.querySelector(".bot-options");
+      botOptions.classList.add("disabled")
+      botOptions.querySelector("[selected]").removeAttribute("selected")
+    } 
+
+    if (elem.dataset.mode == "classic") {
+      document.querySelector(".bot-options").classList.remove("disabled")
+    }
   });
 }
 
@@ -79,19 +90,17 @@ function setupGameLayout() {
   playingPlayersCount = Number(
     document.querySelector(".player-options > [selected]").textContent
   );
-  botsPlayingCount = Number(
-    document.querySelector(".bot-options > [selected]").textContent
-  );
-  areBotsAllowed = botsPlayingCount !== 0;
   chosenGridSize = Number(
     document.querySelector(".grid-options > [selected]").dataset.total
   );
-  chosenGameMode = document.querySelector(
-    ".game-mode-options > [selected]"
-  ).textContent;
+  chosenGameMode = document.querySelector(".game-mode-options > [selected]")
+    .dataset.mode;
+
+  setGameMode();
   isMultiplayerMode = playingPlayersCount + botsPlayingCount > 1;
   createTiles(chosenTheme);
   populatePlayers();
+
   if (isMultiplayerMode) {
     firstPlayersTurn();
     manageTimer(false);
@@ -99,7 +108,21 @@ function setupGameLayout() {
     manageTimer(true, Date.now());
   }
 }
-
+function setGameMode() {
+  if (chosenGameMode == "teams") {
+    botsPlayingCount = playingPlayersCount
+    areBotsAllowed = true
+    teamGameInfo.classList.remove("hidden");
+    console.log("teams");
+  } else {
+    botsPlayingCount = Number(
+      document.querySelector(".bot-options > [selected]").textContent
+    );
+    areBotsAllowed = botsPlayingCount !== 0
+    teamGameInfo.classList.add("hidden");
+    console.log("classic");
+  }
+}
 function createTiles() {
   let totalElements = getTileElements();
   totalElements.forEach((data) => {
@@ -456,11 +479,10 @@ function processSelectedTiles() {
     } else {
       handleTileMismatch(currentPlayerObject);
     }
-  }, 1500);
+  }, 750);
 }
 
 function handleTileMatch(playerObject) {
-  debugger;
   selectedTiles.forEach((tile) => tile.classList.add("found-tile"));
   incrementCounterForPlayer(playerObject);
 
@@ -554,10 +576,12 @@ function resetGame() {
 }
 function resetPlayersData() {
   playingPlayers.forEach((player) => {
+    player.element.remove();
     player.element.querySelector(".moves-count").textContent = 0;
     player.movesCount = 0;
     player.pairsFound = 0;
     if (player.type == "Bot") player.memorisedTiles = [];
   });
   playerStats.innerHTML = null;
+  console.log(playingPlayers);
 }

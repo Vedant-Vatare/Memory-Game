@@ -14,6 +14,9 @@
   --large-text-size: 1.5rem;
   --extra-large-text-size: 1.75rem;
   --text-font-size: 1.25rem;
+  --section-margin-normal: 2rem;
+  --section-margin-large: 2.5rem;
+  --section-margin-small: 1rem;
 }
 * {
   margin: 0px;
@@ -130,6 +133,7 @@ body {
   gap: 1rem;
   width: 100%;
   margin-bottom: 1.25rem;
+  transition: opacity 500ms ease-in-out;
 }
 .customize-options .options h3 {
   color: red;
@@ -153,8 +157,17 @@ body {
 .customize-options .options span[selected] {
   background-color: var(--selected-btns-bg-color);
 }
+.bot-options.disabled {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.game-mode-options {
+  align-items: center;
+}
 .customize-options .game-mode-options span{
   font-size: var(--text-font-size);
+  text-wrap: nowrap;
 }
 
 .card .customize-options #start-btn {
@@ -252,7 +265,7 @@ dialog button {
 }
 
 .game header {
-  margin-top: 3.5rem;
+  margin-top: 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -273,6 +286,7 @@ dialog button {
 .game header #toggle-menu-bar {
   background-color: var(--main-btns-bg-color);
   border: none;
+  padding: 0.35em 0.65em;
 }
 .game header .menu-bar {
   display: flex;
@@ -283,6 +297,43 @@ dialog button {
   margin-right: 1rem;
 }
 
+.game .team-game-info {
+  margin-top: var(--section-margin-small);
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  width: min(90%, 600px);
+}
+.team-game-info div {
+  outline: 1px solid #000;
+  background-color: #dfe7ec;
+  padding: 0.5em 1em;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-radius: 15px;
+  flex-basis: min(30%, 200px);
+}
+.team-game-info p {
+  font-size: var(--text-font-size);
+  font-weight: 300;
+  display: block;
+  text-transform: capitalize;
+}
+.team-game-info .target-score {
+  background-color: var(--main-btns-bg-color);
+  
+}
+.team-game-info .target-score > * {
+  color: var(--btns-color);
+}
+.team-game-info span {
+  font-weight: 700;
+  text-align: center;
+  display: block;
+  font-size: var(--text-font-size);
+}
 .new-game-btn:hover,
 .resume-btn:hover {
   background-color: var(--btns-hover-bg-color);
@@ -309,7 +360,7 @@ dialog button {
   place-items: center;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
-  margin-top: 3rem;
+  margin-top: var(--section-margin-normal);
   height: min(70vw, 600px);
   width: min(70vw, 600px);
 }
@@ -373,11 +424,11 @@ dialog button {
   justify-content: center;
   align-items: center;
   gap: 1.5rem;
+  margin-block:var(--section-margin-large);
 }
 .game-info > span {
   padding: 1em 1em;
-  margin-block: 2rem;
-  width: max(20vw, 200px);
+  width: max(12vw, 200px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -416,13 +467,13 @@ dialog button {
 }
 .player.active-player::after {
   margin-block: 1rem;
-  content: "current Turn";
+  content: "Current Turn";
   width: 95%;
   position: absolute;
   top: 120%;
   left: 50%;
   transform: translate(-50%, -50%);
-  letter-spacing: 0.25rem;
+  letter-spacing: 0.15rem;
   font-size: var(--text-font-size);
   text-align: center;
 }
@@ -475,10 +526,11 @@ dialog button {
   }
   .customize-options .options {
     display: flex;
+    justify-content: center;
     gap: 0.5rem;
   }
   .game header {
-    margin-top: 2rem;
+    margin-top: 1rem;
   }
   .restart-btn,
   .new-game-btn,
