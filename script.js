@@ -9,6 +9,9 @@ const timer = document.querySelector("#time-elapsed");
 const movesCounter = document.querySelector("#moves-count");
 const playerStats = document.querySelector(".players-stats");
 const teamGameInfo = document.querySelector(".team-game-info");
+// const modesTabContainer = document.querySelector(".game-mode-options")
+
+
 
 let isMultiplayerMode,
   chosenGridSize,
@@ -44,9 +47,9 @@ function addSelectOptions() {
   );
   let botOptions = Array.from(document.querySelector(".bot-options").children);
   let gameModeOptions = Array.from(
-    document.querySelector(".game-mode-options").children
+    document.querySelector(".tabs-menu").children
   );
-  themeOptions.forEach((element) => selectOptions(element));
+  themeOptions.forEach((element) => selectOptions(element));  
   gridOptions.forEach((element) => selectOptions(element));
   playersOptions.forEach((element) => {
     selectOptions(element);
@@ -63,19 +66,14 @@ function selectOptions(elem) {
     if(previousSelected)  previousSelected.removeAttribute("selected");
     e.target.setAttribute("selected", "");
 
-    // making bots equal to the selected players count.
-    if (elem.dataset.mode == "teams") {
-      const botOptions = document.querySelector(".bot-options");
-      botOptions.classList.add("disabled")
-      botOptions.querySelector("[selected]").removeAttribute("selected")
-    } 
-
-    if (elem.dataset.mode == "classic") {
-      document.querySelector(".bot-options").classList.remove("disabled")
-    }
   });
 }
 
+// modesTabContainer.addEventListener("click", (e)=>{
+//   const selectedMode = e.target.dataset.mode;
+//   if (!selectedMode) return;
+//   console.log(selectedMode)
+// })
 // Defining Event handlers on buttons:
 const startGameFn = () => {
   mainMenu.classList.add("hidden");

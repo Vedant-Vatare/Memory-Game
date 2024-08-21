@@ -36,10 +36,10 @@ body {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  height: 15vh;
+  margin-block: var(--section-margin-small);
 }
-
-.nav-menu-btn {
+/*  removed nav bar stylings:  */
+/* .nav-menu-btn {
   color: var(--selected-btns-bg-color);
   font-size: var(--large-text-size);
   padding: 0.3em 0.5em;
@@ -48,8 +48,8 @@ body {
   border: none;
   letter-spacing: 2px;
   cursor: pointer;
-}
-.nav-menu-btn:has(+ .main-menu.hidden) {
+} */
+/* .nav-menu-btn:has(+ .main-menu.hidden) {
   display: none;
 }
 .nav-section {
@@ -62,8 +62,8 @@ body {
   transition: transform 250ms ease-in;
   display: grid;
   place-items: center;
-}
-.nav-section span {
+} */
+/* .nav-section span {
   font-size: var(--heading-font-size);
 }
 .nav-section.nav-open {
@@ -84,13 +84,14 @@ body {
 }
 .nav-section.nav-open .close-nav-btn::after {
   transform: translateY(10px);
-}
-.nav-section .nav-menu-options {
+} */
+/* .nav-section .nav-menu-options {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-}
+} */
+
 .main-menu {
   position: absolute;
   overflow-x: hidden;
@@ -112,9 +113,37 @@ body {
   width: min(90vw, 700px);
   border-radius: 20px;
   background-color: #fcfcfc;
-  padding: 1rem 0.5rem;
-  display: grid;
-  place-items: center;
+  padding: 2rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--section-margin-small);
+  overflow: hidden;
+}
+.card .tabs-menu {
+  display: block;
+  width: 90%;
+  border-radius: 40px;
+  outline: 2px solid var(--buttons-bg-color) ;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.tabs-menu .tab-option {
+  font-size: var(--large-text-size);
+  color: #7191a5;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.35rem 1rem;
+  margin-block: 0.25rem;
+  border-radius: 20px;
+  transition: background-color 300ms ease-in-out;
+}
+.tab-option[selected] {
+  background-color: var(--main-btns-bg-color);
+  color: #fff;
 }
 .card .customize-options {
   height: 95%;
@@ -135,9 +164,7 @@ body {
   margin-bottom: 1.25rem;
   transition: opacity 500ms ease-in-out;
 }
-.customize-options .options h3 {
-  color: red;
-}
+
 .customize-options .options span {
   padding: 0.35em 0.5em;
   width: 100%;
@@ -165,14 +192,13 @@ body {
 .game-mode-options {
   align-items: center;
 }
-.customize-options .game-mode-options span{
+/* .customize-options .game-mode-options span{
   font-size: var(--text-font-size);
   text-wrap: nowrap;
-}
+} */
 
 .card .customize-options #start-btn {
   padding: 0.3em;
-  margin-bottom: 1rem;
   color: var(--btns-color);
   background-color: var(--main-btns-bg-color);
   font-size: var(--heading-font-size);

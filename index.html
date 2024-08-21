@@ -15,13 +15,33 @@
       <h1>Memory game</h1>
     </header>
       <div class="card">
+        <!-- tab menu -->
+        <nav class="tabs-menu">
+          <span data-mode="classic" class="tab-option" selected>classic</span>
+          <span data-mode="teams" class="tab-option">Teams</span>
+        </nav>
         <div class="customize-options">
           <h3>Select Theme</h3>
           <div class="options theme-options">
             <span selected>Numbers</span>
             <span>Icons</span>
           </div>
-          <h3>Number of Players</h3>
+          <div class="teams game-mode-tab hidden">
+            <h3>Time Based</h3>
+            <div class="options">
+              <span data-time-limit="1">1 Min</span>
+              <span data-time-limit="2">2 Min</span>
+              <span data-time-limit="3">3 Min</span>
+            </div>
+            <h3>Tiles Target</h3>
+            <div class="options">
+              <span data-tiles-target="10">10</span>
+              <span data-tiles-target="25">25</span>
+              <span data-tiles-target="50">50</span>
+            </div>
+          </div>
+          <div class="classic">
+            <h3>Number of Players</h3>
           <div class="options player-options">
             <span selected>1</span>
             <span>2</span>
@@ -35,10 +55,6 @@
             <span>2</span>
             <span>3</span>
           </div>
-          <h3>Game Mode</h3>
-          <div class="options game-mode-options">
-            <span data-mode="classic" selected>Classic</span>
-            <span data-mode="teams">Players Vs Bots</span>
           </div>
           <h3>Grid Size</h3>
           <div class="options grid-options">
