@@ -119,7 +119,7 @@ body {
   justify-content: center;
   align-items: center;
   gap: var(--section-margin-small);
-  overflow: hidden;
+  margin-bottom: var(--section-margin-normal);
 }
 .card .tabs-menu {
   display: block;

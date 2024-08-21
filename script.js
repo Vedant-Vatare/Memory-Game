@@ -50,14 +50,29 @@ function addSelectOptions() {
     document.querySelector(".tabs-menu").children
   );
   themeOptions.forEach((element) => selectOptions(element));  
+
   gridOptions.forEach((element) => selectOptions(element));
+
   playersOptions.forEach((element) => {
     selectOptions(element);
   });
   botOptions.forEach((element) => selectOptions(element));
-  gameModeOptions.forEach((element) => {
-    selectOptions(element);
+
+  gameModeOptions.forEach((gameModeElement) => {
+
+    selectOptions(gameModeElement);
+    gameModeElement.addEventListener("click",(event)=> {
+      chosenGameMode = event.target.dataset.mode;
+      console.log("called")
+      const teamOptions = document.querySelector(".teams-game-options")
+      if (chosenGameMode == "teams") {
+        teamOptions.classList.remove("hidden")
+      } else  {
+        teamOptions.classList.add("hidden")
+      }
+    })
   });
+  
 }
 
 function selectOptions(elem) {
@@ -69,12 +84,6 @@ function selectOptions(elem) {
   });
 }
 
-// modesTabContainer.addEventListener("click", (e)=>{
-//   const selectedMode = e.target.dataset.mode;
-//   if (!selectedMode) return;
-//   console.log(selectedMode)
-// })
-// Defining Event handlers on buttons:
 const startGameFn = () => {
   mainMenu.classList.add("hidden");
   game.classList.remove("hidden");
@@ -91,8 +100,8 @@ function setupGameLayout() {
   chosenGridSize = Number(
     document.querySelector(".grid-options > [selected]").dataset.total
   );
-  chosenGameMode = document.querySelector(".game-mode-options > [selected]")
-    .dataset.mode;
+  // chosenGameMode = document.querySelector(".game-mode-options > [selected]")
+  //   .dataset.mode;
 
   setGameMode();
   isMultiplayerMode = playingPlayersCount + botsPlayingCount > 1;
@@ -181,7 +190,7 @@ function getTileElements() {
 
   return totalElements.sort(() => Math.random() - 0.5);
 }
-const restartGameFn = () => {
+const restartGameFn = async () => {
   resetGame();
   if (document.querySelector("dialog[open]") !== null) closeModalFn();
   createTiles(chosenTheme);
@@ -565,6 +574,7 @@ function populateWinnerModal(modal) {
 
 function resetGame() {
   manageTimer(false);
+
   // reset game variables.
   gameBoard.innerHTML = null;
   selectedTiles = [];
