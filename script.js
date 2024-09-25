@@ -11,8 +11,6 @@ const playerStats = document.querySelector(".players-stats");
 const teamGameInfo = document.querySelector(".team-game-info");
 // const modesTabContainer = document.querySelector(".game-mode-options")
 
-
-
 let isMultiplayerMode,
   chosenGridSize,
   chosenTheme,
@@ -49,7 +47,7 @@ function addSelectOptions() {
   let gameModeOptions = Array.from(
     document.querySelector(".tabs-menu").children
   );
-  themeOptions.forEach((element) => selectOptions(element));  
+  themeOptions.forEach((element) => selectOptions(element));
 
   gridOptions.forEach((element) => selectOptions(element));
 
@@ -59,28 +57,24 @@ function addSelectOptions() {
   botOptions.forEach((element) => selectOptions(element));
 
   gameModeOptions.forEach((gameModeElement) => {
-
     selectOptions(gameModeElement);
-    gameModeElement.addEventListener("click",(event)=> {
+    gameModeElement.addEventListener("click", (event) => {
       chosenGameMode = event.target.dataset.mode;
-      console.log("called")
-      const teamOptions = document.querySelector(".teams-game-options")
+      const teamOptions = document.querySelector(".teams-game-options");
       if (chosenGameMode == "teams") {
-        teamOptions.classList.remove("hidden")
-      } else  {
-        teamOptions.classList.add("hidden")
+        teamOptions.classList.remove("hidden");
+      } else {
+        teamOptions.classList.add("hidden");
       }
-    })
+    });
   });
-  
 }
 
 function selectOptions(elem) {
   elem.addEventListener("click", (e) => {
-    const previousSelected = elem.parentElement.querySelector("[selected]")
-    if(previousSelected)  previousSelected.removeAttribute("selected");
+    const previousSelected = elem.parentElement.querySelector("[selected]");
+    if (previousSelected) previousSelected.removeAttribute("selected");
     e.target.setAttribute("selected", "");
-
   });
 }
 
@@ -100,8 +94,6 @@ function setupGameLayout() {
   chosenGridSize = Number(
     document.querySelector(".grid-options > [selected]").dataset.total
   );
-  // chosenGameMode = document.querySelector(".game-mode-options > [selected]")
-  //   .dataset.mode;
 
   setGameMode();
   isMultiplayerMode = playingPlayersCount + botsPlayingCount > 1;
@@ -117,15 +109,14 @@ function setupGameLayout() {
 }
 function setGameMode() {
   if (chosenGameMode == "teams") {
-    botsPlayingCount = playingPlayersCount
-    areBotsAllowed = true
+    botsPlayingCount = playingPlayersCount;
+    areBotsAllowed = true;
     teamGameInfo.classList.remove("hidden");
-    console.log("teams");
   } else {
     botsPlayingCount = Number(
       document.querySelector(".bot-options > [selected]").textContent
     );
-    areBotsAllowed = botsPlayingCount !== 0
+    areBotsAllowed = botsPlayingCount !== 0;
     teamGameInfo.classList.add("hidden");
     console.log("classic");
   }
@@ -190,7 +181,7 @@ function getTileElements() {
 
   return totalElements.sort(() => Math.random() - 0.5);
 }
-const restartGameFn = async () => {
+const restartGameFn = () => {
   resetGame();
   if (document.querySelector("dialog[open]") !== null) closeModalFn();
   createTiles(chosenTheme);
@@ -383,7 +374,6 @@ function MakeBotMove(bot) {
       secondChosenTile = getRandomTileForBot(firstChosenTile);
     }
   }
-  // if (secondChosenTile == firstChosenTile) getRandomTileForBot(firstChosenTile);
   setTimeout(() => {
     chooseTileForBot(firstChosenTile);
     checkTilesInMemory(bot);
@@ -493,7 +483,7 @@ function handleTileMatch(playerObject) {
   selectedTiles.forEach((tile) => tile.classList.add("found-tile"));
   incrementCounterForPlayer(playerObject);
 
-  const isWon = checkForWin();
+  const isWon = checkForGameOver();
   if (isWon) {
     displayGameResult();
     return;
@@ -520,7 +510,7 @@ function handleTileMismatch(playerObject) {
   }
 }
 
-function checkForWin() {
+function checkForGameOver() {
   totalFoundTiles += 2;
   return totalFoundTiles == chosenGridSize;
 }
@@ -542,28 +532,33 @@ function displayGameResult() {
     document.querySelector("#moves-taken").textContent = `${moves + 1} Moves`;
   }
 }
-
+function updatePlayersStats() {
+  playingPlayers.sort((p1, p2) => {
+    if (p1.pairsFound > p2.pairsFound) return -1;
+    return 1;
+  });
+  const winner = playingPlayers[0];
+  const isDraw = playingPlayers.some(
+    (player, index) => player.pairsFound === winner.pairsFound && index !== 0
+  );
+  return isDraw;
+}
 function populateWinnerModal(modal) {
-  playingPlayers.sort((a, b) => {
-    if (a > b) return 1;
-    else return -1;
-  });
-  // arranging based on Number of pairs found (greater to smaller)
-  playingPlayers.sort((element1, element2) => {
-    if (element1.pairsFound > element2.pairsFound) return -1;
-    else return 1;
-  });
-  const playerWon = playingPlayers[0];
-  modal.querySelector(
-    "h2"
-  ).textContent = `${playerWon.type} ${playerWon.playerNumber} Wins!`;
+  const isDraw = updatePlayersStats();
+  if (isDraw) {
+    modal.querySelector("h2").textContent = `Its a tie!`;
+  } else {
+    modal.querySelector(
+      "h2"
+    ).textContent = `${playingPlayers[0].type} ${playingPlayers[0].playerNumber} Wins!`;
+  }
 
   playingPlayers.forEach((player, index) => {
     const wrapperElement = document.createElement("div");
     const span = document.createElement("span");
     const para = document.createElement("p");
     span.textContent = `${player.type} ${player.playerNumber}`;
-    if (index == 0)
+    if (index == 0 && !isDraw)
       span.textContent = `${player.type} ${player.playerNumber} (Winner)`;
     const pairsType = player.pairsFound > 1 ? "Pairs" : "Pair";
     para.textContent = `${player.pairsFound}  ${pairsType}`;
@@ -574,12 +569,10 @@ function populateWinnerModal(modal) {
 
 function resetGame() {
   manageTimer(false);
-
   // reset game variables.
   gameBoard.innerHTML = null;
   selectedTiles = [];
   [movesCounter.innerHTML, moves, totalFoundTiles] = [0, 0, 0];
-
   if (isMultiplayerMode) resetPlayersData();
 }
 function resetPlayersData() {
@@ -591,5 +584,4 @@ function resetPlayersData() {
     if (player.type == "Bot") player.memorisedTiles = [];
   });
   playerStats.innerHTML = null;
-  console.log(playingPlayers);
 }
